@@ -107,6 +107,39 @@
     return new Blob([niz], { type: mime });
   }
 
+  /* Fotografije s telefona umeju da budu 5–10 MB, a servis za slanje odbija
+     prevelike priloge — zato se slika pre slanja smanji na najviše 1600px i
+     prepakuje u JPEG. Za štampu je to i dalje sasvim dovoljno. */
+  var MAKS_STRANICA = 1600;
+  var MAKS_BAJTOVA = 900 * 1024;
+  function pripremiSlikuZaSlanje(dataUrl, ime) {
+    return new Promise(function (resolve) {
+      var gotovo = function (blob, novoIme) { resolve({ blob: blob, ime: novoIme }); };
+      var izvorni = dataUrlUBlob(dataUrl);
+      /* male slike se ne diraju — nema razloga da gube kvalitet */
+      if (izvorni.size <= MAKS_BAJTOVA) return gotovo(izvorni, ime);
+
+      var img = new Image();
+      img.onload = function () {
+        var razmera = Math.min(1, MAKS_STRANICA / Math.max(img.width, img.height));
+        var c = document.createElement("canvas");
+        c.width = Math.round(img.width * razmera);
+        c.height = Math.round(img.height * razmera);
+        var ctx = c.getContext("2d");
+        /* bela podloga — providne PNG slike bi inače postale crne u JPEG-u */
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(function (blob) {
+          if (!blob || blob.size >= izvorni.size) return gotovo(izvorni, ime);
+          gotovo(blob, String(ime || "slika").replace(/\.[^.]+$/, "") + ".jpg");
+        }, "image/jpeg", 0.72);
+      };
+      img.onerror = function () { gotovo(izvorni, ime); };
+      img.src = dataUrl;
+    });
+  }
+
   /* tamnija nijansa za obrub kod stila "kontura" */
   function potamni(hex, koliko) {
     var n = parseInt(hex.slice(1), 16);
@@ -1264,10 +1297,10 @@
     dugme.disabled = true;
     dugme.textContent = "Šaljem…";
 
-    function uspelo() {
+    function uspelo(dodatnaPoruka) {
       forma.hidden = true;
       hvala.hidden = false;
-      $("hvalaSazetak").textContent = tekst;
+      $("hvalaSazetak").textContent = tekst + (dodatnaPoruka ? "\n\n" + dodatnaPoruka : "");
       hvala.scrollIntoView({ block: "nearest" });
       vatromet(hvala);
     }
@@ -1320,8 +1353,14 @@
 
     /* slika ide kao pravi prilog (multipart), zato ide FormData a ne JSON —
        web3forms sam prepozna fajl polje i zakači ga na mejl */
-    var zahtev;
-    if (korisnickaSlika) {
+    /* Kod ličnog preuzimanja adresna polja su prazna — šalje se jasan tekst
+       umesto praznog stringa, da u mejlu ne stoje prazne rubrike. */
+    var licno = String(podaci.dostava || "").indexOf("Lično") === 0;
+    var adresaZaMejl = licno ? "Lično preuzimanje" : podaci.adresa;
+    var gradZaMejl   = licno ? "Lično preuzimanje" : podaci.grad;
+    var postaZaMejl  = licno ? "Lično preuzimanje" : podaci.posta;
+
+    function posalji(prilog, napomenaOSlici) {
       var podaciSlanja = new FormData();
       podaciSlanja.append("access_key", WEB3FORMS_KLJUC);
       podaciSlanja.append("subject", naslov);
@@ -1331,45 +1370,47 @@
       podaciSlanja.append("cena", aktivnaInfo.cena);
       podaciSlanja.append("ime", podaci.ime);
       podaciSlanja.append("telefon", podaci.telefon);
-      podaciSlanja.append("adresa", podaci.adresa);
-      podaciSlanja.append("grad", podaci.grad);
-      podaciSlanja.append("posta", podaci.posta || "");
+      podaciSlanja.append("adresa", adresaZaMejl);
+      podaciSlanja.append("grad", gradZaMejl);
+      podaciSlanja.append("posta", postaZaMejl);
       podaciSlanja.append("dostava", podaci.dostava || "");
       podaciSlanja.append("napomena", podaci.napomena || "");
-      podaciSlanja.append("message", tekst);
-      podaciSlanja.append("attachment", dataUrlUBlob(korisnickaSlika.dataUrl), korisnickaSlika.ime || "slika.jpg");
-      zahtev = fetch("https://api.web3forms.com/submit", {
+      podaciSlanja.append("message", tekst + (napomenaOSlici ? "\n\n" + napomenaOSlici : ""));
+      if (prilog) podaciSlanja.append("attachment", prilog.blob, prilog.ime || "slika.jpg");
+
+      fetch("https://api.web3forms.com/submit", {
         method: "POST", headers: { Accept: "application/json" }, body: podaciSlanja
-      });
-    } else {
-      zahtev = fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KLJUC,
-          subject: naslov,
-          from_name: "Bedžić sajt",
-          replyto: EMAIL,
-          proizvod: aktivnaInfo.ime,
-          cena: aktivnaInfo.cena,
-          ime: podaci.ime, telefon: podaci.telefon,
-          adresa: podaci.adresa, grad: podaci.grad, posta: podaci.posta,
-          dostava: podaci.dostava,
-          napomena: podaci.napomena,
-          message: tekst
+      })
+        .then(function (o) {
+          return o.json().catch(function () { return {}; }).then(function (telo) {
+            if (!o.ok || !telo || !telo.success) {
+              /* pravi razlog odbijanja — bez ovoga se u konzoli ne vidi ništa */
+              console.error("Porudžbina nije prošla — status:", o.status, telo);
+              /* Besplatni paket servisa ne prima priloge. Porudžbina je važnija
+                 od slike — šalje se ponovo bez nje, a kupcu se kaže da sliku
+                 pošalje posebno. Bez ovoga bi cela porudžbina propala. */
+              if (prilog) {
+                posalji(null, "Napomena: slika nije mogla da se zakači uz mejl — kupac je šalje posebno.");
+                return;
+              }
+              var razlog = (telo && telo.message) ? " (" + telo.message + ")" : "";
+              nijeUspelo("Slanje nije uspelo" + razlog + ". Pokušaj ponovo ili nam piši na " + EMAIL + ".");
+              return;
+            }
+            uspelo(napomenaOSlici ? "Sliku nam pošalji na Instagram @bedzic ili na " + EMAIL + " — porudžbina je primljena." : "");
+          });
         })
-      });
+        .catch(function (e) {
+          console.error("Porudžbina — greška u vezi:", e);
+          nijeUspelo("Nema veze sa internetom. Pokušaj ponovo ili nam piši na " + EMAIL + ".");
+        });
     }
 
-    zahtev
-      .then(function (o) { return o.json(); })
-      .then(function (o) {
-        if (o && o.success) { uspelo(); }
-        else { nijeUspelo("Slanje nije uspelo. Pokušaj ponovo ili nam piši na " + EMAIL + "."); }
-      })
-      .catch(function () {
-        nijeUspelo("Nema veze sa internetom. Pokušaj ponovo ili nam piši na " + EMAIL + ".");
-      });
+    if (korisnickaSlika) {
+      pripremiSlikuZaSlanje(korisnickaSlika.dataUrl, korisnickaSlika.ime).then(posalji);
+    } else {
+      posalji(null);
+    }
     } /* kraj: nastaviSlanje() */
   });
   } /* kraj: if (modal) — blok specifičan za katalog gotovih proizvoda */

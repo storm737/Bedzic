@@ -8,12 +8,15 @@
   var INSTAGRAM = "https://www.instagram.com/bedzic/";
   var WHATSAPP_BROJ = ""; // npr. "381601234567" — tada se pojavi i WhatsApp dugme
 
-  /* Mejl radionice — ovde stižu sve porudžbine i upiti sa sajta. */
+  /* Javna adresa radionice — ona koja piše na sajtu i u mailto linkovima. */
   var EMAIL = "bedzic@gmail.com";
+  /* Sanduče u koje stižu porudžbine sa sajta. Namerno drugo od javnog: kupci
+     pišu na EMAIL, a porudžbenice se skupljaju odvojeno da se ne pomešaju. */
+  var EMAIL_PORUDZBINE = "bedzic5@gmail.com";
 
-  /* ⬇⬇ OVDE UPIŠI KLJUČ SA web3forms.com (besplatan, vezuje se za EMAIL gore).
+  /* ⬇⬇ KLJUČ SA web3forms.com — vezuje se za EMAIL_PORUDZBINE.
      Dok je prazno, porudžbina se ne gubi — otvara se mejl program kupca sa
-     već popunjenom porukom na EMAIL, pa je dovoljno da pritisne „Pošalji". ⬇⬇ */
+     već popunjenom porukom, pa je dovoljno da pritisne „Pošalji". ⬇⬇ */
   var WEB3FORMS_KLJUC = "c395cbe4-59b3-4eb1-80bf-fd1caafb7516";
 
   /* Šolja na naslovnoj lista njene prave dizajne — svaki ima svoje pismo,
@@ -340,7 +343,11 @@
     Array.prototype.forEach.call(forma.querySelectorAll(".polja__adresno"), function (polje) {
       polje.hidden = licno;
       var unos = polje.querySelector("input");
-      if (unos) unos.required = !licno;
+      if (!unos) return;
+      unos.required = !licno;
+      /* prazni se pri prelasku na lično — inače bi adresa koju je kupac
+         otkucao pa se predomislio i dalje otišla u porudžbinu */
+      if (licno) { unos.value = ""; unos.removeAttribute("aria-invalid"); }
     });
     var napomena = $("modalNapomenaLicno");
     if (napomena) napomena.hidden = !licno;
@@ -1224,16 +1231,25 @@
       podaci[el.name] = String(el.value || "").trim();
     });
 
-    /* provera obaveznih polja */
+    /* provera obaveznih polja — adresa se traži samo uz slanje kurirskom
+       službom; kod ličnog preuzimanja ta polja su sakrivena, pa bi inače
+       porudžbina pucala na podacima koje kupac uopšte ne vidi */
+    var licnoPreuzimanje = String(podaci.dostava || "").indexOf("Lično") === 0;
+    var obavezna = [["ime", "ime i prezime"], ["telefon", "telefon"]];
+    if (!licnoPreuzimanje) {
+      obavezna.push(["grad", "grad"], ["posta", "poštanski broj"], ["adresa", "adresa"]);
+    }
+    /* sliku ne tražimo ponovo ako ju je kupac već priložio u konfiguratoru */
+    if (!aktivnaInfo.korisnickaSlika) obavezna.push(["slikaPorudzbina", "slika za štampu"]);
+
     var fali = [];
-    [["ime", "ime i prezime"], ["telefon", "telefon"], ["grad", "grad"], ["posta", "poštanski broj"], ["adresa", "adresa"], ["slikaPorudzbina", "slika za štampu"]]
-      .forEach(function (par) {
-        var polje = forma.elements[par[0]];
-        if (!polje) return; /* npr. slika za štampu postoji samo u konfiguratoru */
-        var prazno = !podaci[par[0]];
-        polje.setAttribute("aria-invalid", String(prazno));
-        if (prazno) fali.push(par[1]);
-      });
+    obavezna.forEach(function (par) {
+      var polje = forma.elements[par[0]];
+      if (!polje) return; /* npr. slika za štampu postoji samo u konfiguratoru */
+      var prazno = !podaci[par[0]];
+      polje.setAttribute("aria-invalid", String(prazno));
+      if (prazno) fali.push(par[1]);
+    });
     if (aktivnaInfo.unosLabel && !podaci.unos) {
       fali.push(aktivnaInfo.unosLabel.toLowerCase());
     }
@@ -1295,7 +1311,7 @@
          Kupcu ostaje samo da pritisne „Pošalji" i poruka stiže na EMAIL.
          Kopiramo i u clipboard, za slučaj da mejl program nije podešen. */
       kopiraj(tekst, $("modalInfo"));
-      window.location.href = "mailto:" + EMAIL +
+      window.location.href = "mailto:" + EMAIL_PORUDZBINE +
         "?subject=" + encodeURIComponent(naslov) +
         "&body=" + encodeURIComponent(tekst);
       uspelo();

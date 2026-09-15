@@ -1,0 +1,2456 @@
+/* Bedžić — deljeni stilovi za sve strane sajta (index, napravi, gotovi, dostava). */
+/* ============================================================
+   BEDŽIĆ — dva pisma: Baloo 2 (naslovi) i Manrope (tekst).
+   Cutive Mono postoji samo kao stil slova NA ŠOLJI, ne u sajtu.
+   ============================================================ */
+:root{
+  /* crvena i roze nose brend — crvena je uzeta iz logotipa (#E23A2E),
+     samo za nijansu produbljena da na velikim površinama ostane mirna */
+  --crvena:#CE3A31;
+  --crvena-tamna:#B02A22;
+  --crvena-mrak:#8E2119;
+  --roze:#FBC6DA;
+  --roze-jaka:#F794B6;
+  /* boja svih dugmadi na sajtu — puna magenta-roze, po uzoru na dizajn iz 13.08.
+     Malo tamnija nijansa nego na referenci, da beli tekst ima dovoljan kontrast (4.65:1). */
+  --dugme-roze:var(--brend-crvena);
+  --dugme-roze-tamna:var(--brend-crvena-tamna);
+  --dugme-slova:#FFFFFF;
+  --roze-duboka:#EA6E9C;
+  --roze-blaga:#FFF0F5;
+
+  /* menta — hladan pastelni akcenat koji razbija roze površine.
+     Prigušena, „prašnjava" žalfija a ne živa mentol zelena: niska zasićenost
+     da uz pastelnu roze deluje prirodno i elegantno, ne da skače iz slike.
+     --menta-tamna je namerno dovoljno tamna da beli tekst na dugmetu i
+     natpis na bedžu zadrže čitljiv kontrast (4.5:1). */
+  --menta:#C8DCD3;
+  --menta-blaga:#E9F0EC;
+  --menta-tamna:#3D6354;
+  --menta-mrak:#2C4A3E;
+
+  /* pratnja — svaka strana/sekcija dobija svoj ton. Paleta pojačana po
+     Tijaninom predlogu (narandžasta/ljubičasta/vrela roza mud-board) —
+     bento kartice i oznake sada nose stvarnu boju, ne samo roze. */
+  --zuta:#FFC93C;
+  --zuta-tamna:#E8A916;
+  --zuta-blaga:#FFF6DF;
+  --lila:#9B5DE5;
+  --lila-tamna:#7C3AED;
+  --lila-blaga:#F1E7FF;
+  --zelena:#A8C46B;
+  --zelena-blaga:#EFF6DE;
+  --narandza:#FF7A3D;
+  --narandza-tamna:#E85A1F;
+  --narandza-blaga:#FFE7D6;
+
+  --krem:#FFFBF8;
+  --belo:#FFFFFF;
+  /* nije crna — topla, blago šljivasta tamna, da se ne sudara sa crvenom */
+  --mastilo:#463141;
+  --mastilo-blago:#83697A;
+  --ivica:#F3DCE4;
+
+  /* ---- BREND (naslovna → ceo sajt) ----
+     Jedan set boja za sve nove blokove: crvena izvedena iz logotipa,
+     tri stepena roze i krem. Ranije su ove vrednosti bile prepisivane
+     kao goli heksovi po fajlu, pa se nisu mogle promeniti na jednom mestu. */
+  --brend-crvena:#D5473D;
+  --brend-crvena-tamna:#AD332A;
+  --brend-crvena-svetla:#E05B4F;
+  --brend-roze:#F0479A;          /* jaka — dugmad, kockice, akcenti */
+  --brend-roze-tamna:#C92E70;    /* senka ispod jake roze */
+  --brend-roze-srednja:#F5A9C0;  /* podloge kartica i traka */
+  --brend-roze-blaga:#F7C3CB;    /* veće mirne površine */
+  --brend-krem:#FDF3E7;          /* unutrašnja polja */
+
+  /* Bile su definisane samo unutar .naslovna, pa su komponente koje se
+     koriste i na drugim stranama (.tile, .karta) ostajale bez boje.
+     Sada žive u :root; .naslovna ih po potrebi i dalje može pregaziti. */
+  --cherry:#E8352E;
+  --cherry-dark:#A81625;
+  --pink-bg:#FBD7DE;
+  --pink-blob:#F5A8B8;
+  --pink-blob-2:#F0899E;
+  --cream:#FFF8F5;
+  --btn-bordo:var(--brend-crvena);
+  --btn-bordo-shadow:var(--brend-crvena-tamna);
+  --mint:var(--menta);
+  --mint-soft:var(--menta-blaga);
+  --mint-deep:var(--menta-tamna);
+  --mint-dark:var(--menta-mrak);
+  --f-naslov:var(--naslovi);
+  --f-tekst:var(--tekst);
+
+  /* sajt koristi samo dva pisma */
+  --naslovi:'Baloo 2', system-ui, sans-serif;
+  --tekst:'Manrope', system-ui, -apple-system, sans-serif;
+  /* ovih pet postoji isključivo kao stil slova NA ŠOLJI */
+  --masina:'Cutive Mono', ui-monospace, monospace;
+  --marker:'Shantell Sans', 'Baloo 2', sans-serif;
+  --strip:'Bangers', 'Baloo 2', sans-serif;
+  --elegantna:'Poppins', 'Manrope', sans-serif;
+  --okrugla:'Quicksand', 'Baloo 2', sans-serif;
+
+  /* jedna širina za ceo sajt — navigacija, sekcije i naslovna kartica dele je,
+     pa se sve poravnava po istoj levoj i desnoj ivici na velikim ekranima */
+  --sirina:1320px;
+
+  --r-s:14px; --r-m:22px; --r-l:32px; --r-xl:44px;
+  --senka-s:0 4px 14px -6px rgba(51,33,44,.24);
+  --senka-m:0 14px 30px -18px rgba(51,33,44,.34);
+  --senka-l:0 28px 56px -30px rgba(51,33,44,.42);
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100% }
+/* Isti roze motiv sa krugovima kao na naslovnoj (.naslovna) — sada na celom sajtu,
+   fiksiran za viewport da krugovi ostanu u uglovima ekrana bez obzira na skrol. */
+body{
+  margin:0; color:var(--mastilo);
+  font-family:var(--tekst); font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  background:
+    radial-gradient(circle at 4% 4%,  #F5A8B8 0%, #F5A8B8 6%,   transparent 6.3%),
+    radial-gradient(circle at 96% 5%, #F0899E 0%, #F0899E 5%,   transparent 5.3%),
+    radial-gradient(circle at 3% 95%, #F0899E 0%, #F0899E 5.5%, transparent 5.8%),
+    radial-gradient(circle at 97% 96%,#F5A8B8 0%, #F5A8B8 6.5%, transparent 6.8%),
+    #FBD7DE;
+  background-attachment:fixed;
+}
+img{ max-width:100%; display:block }
+/* dugmad i polja ne nasleđuju pismo — bez ovoga upadne sistemski Arial */
+button, input, textarea, select{ font-family:inherit }
+h1,h2,h3{ font-family:var(--naslovi); font-weight:800; line-height:1.04; margin:0; text-wrap:balance; letter-spacing:-.015em }
+p{ margin:0; text-wrap:pretty }
+a{ color:inherit }
+::selection{ background:var(--roze-jaka); color:var(--mastilo) }
+:focus-visible{ outline:3px solid var(--crvena); outline-offset:3px; border-radius:10px }
+
+.omot{ width:min(var(--sirina), 100% - 64px); margin-inline:auto; position:relative; z-index:2 }
+@media (max-width:640px){ .omot{ width:calc(100% - 36px) } }
+
+/* ============================================================
+   POZADINE — svaka sekcija ima svoju, u tonu proizvoda
+   ============================================================ */
+.strana{ position:relative; overflow:hidden; padding:104px 0 }
+.strana__crtez{ position:absolute; inset:0; z-index:0; pointer-events:none }
+@media (max-width:640px){ .strana{ padding:72px 0 } }
+
+/* ---- TAČKICE: jedini motiv na sajtu ----
+   Karo je zamenjen mrežom sitnih tačkica. Karo je uvek imao dva tona i
+   povlačio oko na sebe; tačkica je jedan ton, retka i tiha — daje površini
+   teksturu ručnog papira, a ne šara pozadinu.
+   Menja se samo boja (--tacka) i razmak (--razmak), nikad sam motiv. */
+.crtez-tacke{
+  background-image:radial-gradient(var(--tacka) 1.5px, transparent 1.6px);
+  background-size:var(--razmak, 26px) var(--razmak, 26px);
+}
+/* uzorak se povlači tamo gde stoji tekst, a ostaje po ivicama */
+.crtez-blend{
+  -webkit-mask-image:radial-gradient(78% 62% at 50% 44%, transparent 42%, #000 100%);
+  mask-image:radial-gradient(78% 62% at 50% 44%, transparent 42%, #000 100%);
+}
+/* tanka traka između strana — sada mirna linija umesto karoa */
+.traka-karo{
+  height:12px; position:relative; z-index:3;
+  background-image:radial-gradient(rgba(206,58,49,.24) 1.5px, transparent 1.6px);
+  background-size:12px 12px;
+  background-color:var(--roze-blaga);
+}
+.crtez-vrh{
+  -webkit-mask-image:linear-gradient(#000, transparent 78%);
+  mask-image:linear-gradient(#000, transparent 78%);
+}
+
+/* rese — mekan prelaz između strana */
+.rese{ position:relative; height:26px; z-index:3; margin-top:-1px }
+.rese::before{
+  content:""; position:absolute; inset:0;
+  background-image:radial-gradient(circle at 13px 13px, var(--kap) 13.2px, transparent 13.6px);
+  background-size:26px 26px; background-repeat:repeat-x;
+}
+
+/* ============================================================
+   TREŠNJE — malo, na pravim mestima
+   ============================================================ */
+.ukras{ position:absolute; pointer-events:none; z-index:1 }
+.ukras svg{ width:100%; height:auto; display:block }
+@keyframes njihaj{
+  0%,100%{ transform:translateY(0) rotate(var(--nagib,0deg)) }
+  50%{ transform:translateY(-11px) rotate(calc(var(--nagib,0deg) + 4deg)) }
+}
+.njise{ animation:njihaj 6s ease-in-out infinite }
+@media (max-width:940px){ .samo-siroko{ display:none } }
+
+/* trešnje koje padaju preko naslovne */
+/* z-index:50 — trešnje padaju PREKO bele kartice i teksta, ne iza njih.
+   Ostaje ispod navigacije (z-index:60) da ne prelaze preko menija.
+   pointer-events:none je obavezno: sloj pokriva celu sekciju, pa bi bez toga
+   presretao klikove na dugmad ispod sebe. */
+/* Trešnje padaju IZA kartice (.card je z-index:2) — ranije su bile ispred
+   pa su preletale preko naslova, ikonica i cena i pravile zbrku. */
+.pada-sloj{ position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden }
+.pada{
+  position:absolute; top:0; width:var(--v, 30px);
+  will-change:transform; animation:pada linear infinite; pointer-events:none;
+}
+/* na telefonu su iste trešnje prevelike u odnosu na uži ekran — pola veličine */
+@media (max-width:640px){ .pada{ width:calc(var(--v, 30px) * .5) } }
+.pada svg{ width:100%; height:auto; display:block }
+@keyframes pada{
+  0%   { transform:translate3d(0, -150px, 0) rotate(0deg); opacity:0 }
+  9%   { opacity:.92 }
+  86%  { opacity:.92 }
+  100% { transform:translate3d(var(--zanos, 26px), var(--pad, 900px), 0) rotate(var(--obrt, 240deg)); opacity:0 }
+}
+@media (prefers-reduced-motion:reduce){ .pada-sloj{ display:none } }
+
+/* ============================================================
+   DUGMAD
+   ============================================================ */
+/* Jedno dugme za ceo sajt, po uzoru na dizajn iz 13.08: puna magenta-roze,
+   deblji „3D" sloj senke ispod kao da je dugme pravi tastar — pritisne se
+   kad ga kliknemš. Sporedno dugme je isto puno roze, samo tiši. */
+.dugme{
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  font-family:var(--naslovi); font-weight:800; font-size:16.5px; line-height:1;
+  min-height:54px; padding:0 30px; border-radius:999px; border:0;
+  background:var(--dugme-roze); color:var(--dugme-slova);
+  cursor:pointer; text-decoration:none;
+  box-shadow:0 6px 0 var(--dugme-roze-tamna), 0 14px 22px -12px rgba(142,33,25,.5);
+  transition:transform .18s cubic-bezier(.2,.9,.3,1.4), box-shadow .18s ease, background .18s ease;
+}
+.dugme:hover{ background:var(--brend-crvena-svetla); transform:translateY(-2px);
+  box-shadow:0 8px 0 var(--dugme-roze-tamna), 0 18px 26px -12px rgba(142,33,25,.55) }
+.dugme:active{ transform:translateY(4px);
+  box-shadow:0 2px 0 var(--dugme-roze-tamna), 0 6px 12px -10px rgba(142,33,25,.4) }
+.dugme[hidden]{ display:none }
+.dugme--tiho{
+  background:var(--belo); color:var(--dugme-roze-tamna);
+  box-shadow:0 6px 0 var(--roze), 0 14px 22px -14px rgba(142,33,25,.3);
+}
+.dugme--tiho:hover{ background:#FFF5F8;
+  box-shadow:0 8px 0 var(--roze), 0 18px 26px -14px rgba(142,33,25,.32) }
+.dugme--tiho:active{ box-shadow:0 2px 0 var(--roze) }
+.dugme--malo{ min-height:44px; padding:0 22px; font-size:15px;
+  box-shadow:0 4px 0 var(--dugme-roze-tamna), 0 10px 16px -10px rgba(142,33,25,.45) }
+.dugme--malo:hover{ box-shadow:0 6px 0 var(--dugme-roze-tamna), 0 12px 18px -10px rgba(142,33,25,.5) }
+.dugme--malo:active{ box-shadow:0 1px 0 var(--dugme-roze-tamna) }
+.dugme--malo.dugme--tiho{ box-shadow:0 4px 0 var(--roze) }
+.dugme--malo.dugme--tiho:hover{ box-shadow:0 6px 0 var(--roze) }
+
+/* ============================================================
+   NAVIGACIJA
+   ============================================================ */
+.nav{
+  position:sticky; top:0; z-index:60;
+  /* Neproziran fon na dodirnim ekranima — blur iza sticky trake se
+     ponovo iscrtava na svaki scroll frejm i guši telefonske GPU-ove.
+     Desktop (miš/hover) i dalje dobija blur jer se tamo scroll ređe
+     animira ovako agresivno i ima više grafičke snage. */
+  background:var(--krem);
+  border-bottom:1.5px solid var(--ivica);
+}
+@media (hover:hover) and (pointer:fine){
+  .nav{ background:rgba(255,251,248,.9); backdrop-filter:blur(14px) saturate(1.3) }
+}
+.nav__red{ display:flex; align-items:center; gap:22px; height:78px }
+.nav__logo img{ height:40px; width:auto }
+.nav__linkovi{ display:flex; gap:30px; margin-left:auto; align-items:center }
+.nav__linkovi a:not(.dugme){
+  text-decoration:none; font-weight:700; font-size:15.5px; color:var(--mastilo);
+  position:relative; padding:4px 0; transition:color .18s;
+}
+.nav__linkovi a:not(.dugme)::after{
+  content:""; position:absolute; left:0; right:0; bottom:-2px; height:2.5px;
+  background:var(--brend-crvena); border-radius:2px; transform:scaleX(0); transform-origin:left;
+  transition:transform .24s cubic-bezier(.2,.9,.3,1.2);
+}
+.nav__linkovi a:not(.dugme):hover{ color:var(--brend-crvena) }
+.nav__linkovi a:not(.dugme):hover::after{ transform:scaleX(1) }
+.nav .dugme{ min-height:42px; padding:0 22px; font-size:15px }
+
+/* ---- hamburger prekidač — samo na uskom ekranu ---- */
+.nav__prekidac{
+  display:none; margin-left:auto; width:42px; height:42px; border:0; background:none;
+  padding:0; cursor:pointer; flex:none; align-items:center; justify-content:center;
+  border-radius:12px;
+}
+.nav__prekidac:hover{ background:var(--roze) }
+.nav__prekidac span{
+  position:relative; width:22px; height:2.5px; border-radius:2px; background:var(--mastilo);
+  transition:transform .22s ease, opacity .18s ease;
+}
+.nav__prekidac span::before, .nav__prekidac span::after{
+  content:""; position:absolute; left:0; width:22px; height:2.5px; border-radius:2px;
+  background:var(--mastilo); transition:transform .22s ease, top .22s ease;
+}
+.nav__prekidac span::before{ top:-7px }
+.nav__prekidac span::after{ top:7px }
+/* otvoreno — tri crte postaju X */
+.nav__prekidac[aria-expanded="true"] span{ background:transparent }
+.nav__prekidac[aria-expanded="true"] span::before{ top:0; transform:rotate(45deg) }
+.nav__prekidac[aria-expanded="true"] span::after{ top:0; transform:rotate(-45deg) }
+
+@media (max-width:880px){
+  .nav__red{ height:68px }
+  .nav__logo img{ height:34px }
+  .nav__prekidac{ display:flex }
+  /* Padne kao puna traka ispod zaglavlja — position:absolute na .nav
+     (sticky = pozicioniran predak), pa ne pomera sadržaj ispod sebe. */
+  .nav__linkovi{
+    position:absolute; top:100%; left:0; right:0; z-index:59;
+    flex-direction:column; align-items:stretch; gap:0; margin-left:0;
+    background:var(--krem); border-bottom:1.5px solid var(--ivica);
+    box-shadow:0 16px 24px -18px rgba(51,33,44,.25);
+    padding:6px 20px 18px;
+    opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  }
+  .nav__linkovi[data-otvoreno="true"]{
+    opacity:1; visibility:visible; transform:translateY(0);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .nav__linkovi a:not(.dugme){
+    display:block; padding:14px 2px; font-size:16.5px;
+    border-bottom:1.5px solid var(--ivica);
+  }
+  .nav__linkovi a:not(.dugme)::after{ display:none }
+  .nav__linkovi .dugme{ width:100%; margin:16px 0 2px }
+}
+@media (min-width:881px){
+  /* na širem ekranu meni je uvek "otvoren" (obična traka) bez obzira na
+     stanje prekidača koje se pamti samo dok je ekran uzak */
+  .nav__linkovi{ opacity:1; visibility:visible; transform:none }
+}
+
+/* ============================================================
+   TIPOGRAFIJA SEKCIJA
+   ============================================================ */
+.oznaka{
+  display:inline-flex; align-items:center; gap:9px;
+  font-family:var(--tekst); font-weight:800; font-size:13.5px; letter-spacing:.02em;
+  color:var(--crvena-tamna); background:var(--belo);
+  border:1.5px solid var(--ivica); box-shadow:var(--senka-s);
+  padding:8px 18px 8px 13px; border-radius:999px; margin:0 0 20px;
+}
+.oznaka svg{ width:19px; height:19px; flex:none }
+/* obojene varijante — svaka sekcija nosi svoj ton umesto uvek istog roze */
+/* Sve oznake su u brend paru roze/crvena, kao naslovna. Ranije su bile
+   narandžasta, lila, žuta i mentol — boje kojih na naslovnoj više nema. */
+.oznaka--narandza,
+.oznaka--lila,
+.oznaka--zuta,
+.oznaka--menta{
+  color:var(--brend-crvena); background:#FFF0F4; border-color:var(--brend-roze-blaga);
+}
+.naslov{ font-size:clamp(33px, 5vw, 57px) }
+.uvod{ margin-top:17px; max-width:56ch; color:var(--mastilo-blago); font-size:18px }
+.sredina{ text-align:center }
+.sredina .uvod{ margin-inline:auto }
+
+/* ============================================================
+   NASLOVNA — veran port stranice iz assets/naslovna/bedzic-sajt-3.html.
+   Sopstvene boje/fontove/razmake (Outfit + Plus Jakarta Sans), odvojeno
+   od ostatka sajta, da kartica ostane tačno onakva kakva je isporučena.
+   ============================================================ */
+.naslovna{
+  --cherry:#E8352E;
+  --cherry-dark:#A81625;
+  --pink-bg:#FBD7DE;
+  --pink-blob:#F5A8B8;
+  --pink-blob-2:#F0899E;
+  --cream:#FFF8F5;
+  --btn-bordo:#E85C93;
+  --btn-bordo-shadow:#C43F72;
+  --mint:var(--menta);
+  --mint-soft:var(--menta-blaga);
+  --mint-deep:var(--menta-tamna);
+  --mint-dark:var(--menta-mrak);
+  /* Isti fontovi kao na ostatku sajta (Baloo 2 + Manrope) — jedan tip pisma
+     svuda, umesto da naslovna ima svoj poseban (Outfit + Plus Jakarta Sans). */
+  --f-naslov:var(--naslovi);
+  --f-tekst:var(--tekst);
+
+  /* Roze krugovi po uglovima + dva mekana mentol oblaka po sredini — mentol
+     razbija veliku roze površinu na monitoru, a ostaje dovoljno tih da ne viče. */
+  background:
+    radial-gradient(circle at 8% 6%,  var(--pink-blob)   0%, var(--pink-blob)   9%,  transparent 9.3%),
+    radial-gradient(circle at 92% 8%, var(--pink-blob-2) 0%, var(--pink-blob-2) 7%,  transparent 7.3%),
+    radial-gradient(circle at 6% 92%, var(--pink-blob-2) 0%, var(--pink-blob-2) 8%,  transparent 8.3%),
+    radial-gradient(circle at 94% 94%,var(--pink-blob)   0%, var(--pink-blob)   10%, transparent 10.3%),
+    radial-gradient(ellipse 46% 40% at 88% 52%, var(--mint) 0%, transparent 62%),
+    radial-gradient(ellipse 40% 34% at 4% 44%,  var(--mint) 0%, transparent 60%),
+    var(--pink-bg);
+}
+
+/* Kompaktna kartica fiksne širine — ista na telefonu i na monitoru, ne raste
+   sa ekranom. Cilj: cela sekcija (logo → footer) staje na jedan ekran. */
+.card{
+  position:relative; z-index:2; width:100%;
+  max-width:560px; margin:0 auto;
+  background:var(--cream); border-radius:30px; border:3px solid #fff;
+  box-shadow:0 12px 0 -4px rgba(168,22,37,.12), 0 16px 32px rgba(168,22,37,.18);
+  padding:22px 22px 26px;
+  overflow:hidden;
+}
+.card::before{
+  content:""; position:absolute; top:-40px; right:-40px; width:120px; height:120px;
+  background:var(--pink-bg); border-radius:50%; opacity:.6;
+}
+
+.logo-wrap{ display:flex; justify-content:center; margin-bottom:4px; position:relative; z-index:1 }
+.logo-wrap img{ width:170px; max-width:65%; height:auto; display:block; filter:drop-shadow(0 6px 10px rgba(168,22,37,.15)) }
+
+.tagline{
+  text-align:center; font-family:var(--f-tekst); font-weight:700; font-size:.85rem;
+  letter-spacing:.02em; color:var(--cherry-dark); margin:2px 0 10px; position:relative; z-index:1;
+}
+.tagline svg{ width:14px; height:14px; vertical-align:-2px }
+
+.socials{ display:flex; justify-content:center; gap:10px; margin-bottom:14px; position:relative; z-index:1 }
+.socials a{
+  width:34px; height:34px; border-radius:50%; background:var(--cherry);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 0 var(--cherry-dark); text-decoration:none; transition:transform .15s ease;
+}
+.socials a:hover{ transform:translateY(-2px) }
+.socials svg{ width:16px; height:16px; fill:#fff }
+
+.hero{ text-align:center; margin-bottom:12px; position:relative; z-index:1 }
+/* Mentol bedž — jedini hladan ton u toplom roze bloku, pa oko odmah padne na njega */
+.eyebrow{
+  display:inline-flex; align-items:center; gap:6px; background:var(--mint); color:var(--mint-deep);
+  font-family:var(--f-naslov); font-weight:700; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:5px 13px; border-radius:999px; margin-bottom:8px; text-decoration:none;
+  border:1.5px solid rgba(61,99,84,.24);
+  transition:transform .15s ease, background .18s ease;
+}
+.eyebrow svg{ width:14px; height:14px; flex:none }
+/* "trepće" — blaga pulsirajuća senka, da privuče pogled na novu kolekciju */
+a.eyebrow{ animation:eyebrowTreperi 1.8s ease-in-out infinite }
+a.eyebrow:hover{ transform:translateY(-1px); background:var(--mint-soft) }
+@keyframes eyebrowTreperi{
+  0%, 100% { box-shadow:0 0 0 0 rgba(61,99,84,.4) }
+  50%      { box-shadow:0 0 0 8px rgba(61,99,84,0) }
+}
+
+/* clamp() svuda gde tekst mora da raste sa ekranom — jedna vrednost pokriva
+   i telefon i monitor, bez skoka na tačno 1024px */
+.hero h1{
+  font-family:var(--f-naslov); font-weight:700;
+  font-size:clamp(1.7rem, 1.15rem + 2.6vw, 3.4rem);
+  line-height:1.14; letter-spacing:-.01em; margin:0 0 8px;
+  background:linear-gradient(100deg, var(--cherry) 20%, var(--btn-bordo) 80%);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:var(--cherry);
+}
+.hero h1 .accent{ font-weight:800 }
+
+.subhead{
+  font-family:var(--f-tekst); font-weight:600; color:#3C3C3C;
+  font-size:clamp(.85rem, .74rem + .5vw, 1.14rem);
+  line-height:1.5; margin:0 auto 14px; max-width:340px;
+}
+
+/* Mentol oreol iza fotografije — vidi se samo kao mekan sjaj po ivicama slike,
+   pa roze površina oko hero-a prestaje da bude jednolična. */
+.hero-frame{
+  position:relative; border-radius:18px; border:4px solid #fff;
+  box-shadow:0 10px 26px rgba(168,22,37,.22); margin-bottom:12px;
+  /* bez fiksne visine — fotografija se vidi cela, na svakoj širini ekrana.
+     Ranije je height:190px sa cover-om odsecao vrh natpisa na šoljama. */
+  height:auto;
+}
+.hero-frame::before{
+  content:""; position:absolute; inset:-16px -16px -22px; z-index:0; pointer-events:none;
+  border-radius:32px; background:var(--mint); opacity:.55; filter:blur(22px);
+}
+.hero-frame img{
+  position:relative; z-index:1;
+  width:100%; height:auto; display:block; border-radius:14px;
+}
+
+/* nowrap — „Pogledaj celu kolekciju →" i strelica moraju da ostanu u istom redu */
+.store-link{
+  display:block; width:fit-content; max-width:100%; margin:0 auto; text-align:center;
+  white-space:nowrap;
+  background:var(--btn-bordo); color:#fff;
+  font-family:var(--f-naslov); font-weight:700; letter-spacing:.03em;
+  font-size:clamp(.88rem, .8rem + .3vw, 1.02rem);
+  padding:12px 24px; border-radius:16px; text-decoration:none;
+  box-shadow:0 5px 0 var(--btn-bordo-shadow);
+  transition:transform .12s ease, box-shadow .12s ease, background .18s ease;
+}
+/* Na prelaz mišem dugme posvetli u pastelni mentol — svetlo, ne tamnozeleno.
+   Tekst i „taster" senka moraju u tamniji mentol, inače beli tekst nestane
+   na svetloj podlozi (kontrast 5.4:1). */
+.store-link:hover, .store-link:focus-visible{
+  transform:translateY(-1px);
+  background:var(--mint-soft); color:var(--mint-deep);
+  box-shadow:0 5px 0 var(--mint);
+}
+.store-link:active{
+  transform:translateY(3px);
+  background:var(--mint-soft); color:var(--mint-deep);
+  box-shadow:0 2px 0 var(--mint);
+}
+
+/* mali dokaz poverenja ispod glavnog dugmeta */
+.stat{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--f-tekst); font-weight:700; font-size:.78rem;
+  /* inline-flex prati text-align roditelja — centrirano na telefonu,
+     levo poravnato u dvokolonskom hero-u na monitoru */
+  color:var(--cherry-dark); margin-top:12px; opacity:.85;
+}
+.stat svg{ width:15px; height:15px; flex:none }
+
+/* razdelnik: roze crtice sa jedne, mentol sa druge strane trešnje */
+.divider{ display:flex; align-items:center; gap:8px; margin:14px 0 12px; position:relative; z-index:1 }
+.divider::before, .divider::after{
+  content:""; height:2px; flex:1; border-radius:2px;
+  background:repeating-linear-gradient(90deg, var(--pink-blob-2) 0 6px, transparent 6px 12px);
+}
+.divider::after{
+  background:repeating-linear-gradient(90deg, var(--mint-deep) 0 6px, transparent 6px 12px);
+  opacity:.5;
+}
+
+/* ---- „Najtraženije": kartice sa obojenom podlogom, oznakom Hit i srcem ---- */
+.hit{ position:relative; z-index:1; margin:10px 0 18px }
+.hit__naslov{
+  font-family:var(--naslovi); font-weight:800; font-style:italic;
+  font-size:clamp(1.3rem, 1.05rem + 1.1vw, 2.1rem);
+  color:var(--brend-crvena); margin:0 0 14px; letter-spacing:-.01em;
+}
+/* traka se prevlači vodoravno; na monitoru se svih pet vidi u redu */
+.hit__traka{
+  display:grid; grid-auto-flow:column; grid-auto-columns:min(74%, 240px); gap:12px;
+  cursor:grab;
+  overflow-x:auto; scroll-snap-type:x mandatory;
+  padding-bottom:4px; margin-inline:-4px; padding-inline:4px;
+  scrollbar-width:none;
+}
+.hit__traka::-webkit-scrollbar{ display:none }
+/* na monitoru kartice ostaju fiksne širine (ne stisnu se u 5 uskih kolona),
+   pa ime i cena uvek stanu u jedan red — ostatak se prevlači */
+@media (min-width:700px){ .hit__traka{ grid-auto-columns:min(31%, 230px); gap:16px } }
+
+.hit__karta{
+  scroll-snap-align:start; text-decoration:none;
+  display:flex; flex-direction:column;
+  transition:transform .16s cubic-bezier(.2,.9,.3,1.3);
+}
+.hit__karta:hover, .hit__karta:focus-visible{ transform:translateY(-4px) }
+/* Obojeno polje se vidi samo kao ram oko fotografije — sama slika ostaje u
+   svojim pravim bojama (bez mix-blend-mode, koji ju je bojio u ton pločice). */
+/* Jedan miran okvir za sve kartice — bela podloga sa tankim toplim rubom,
+   ista kao kod ikonica u panelu. Ranije je svaka kartica imala svoju punu
+   boju, pa se ta boja tukla sa pozadinom same fotografije (roze pločice,
+   ljubičasti karo…). Kvadrat + contain: proizvod se uvek vidi ceo. */
+.hit__okvir{
+  position:relative; display:block; aspect-ratio:1;
+  border-radius:16px; overflow:hidden;
+  background:#fff; border:2px solid #F3E2D0;
+  padding:6px;
+}
+.hit__okvir img{
+  width:100%; height:100%; object-fit:contain; display:block;
+  border-radius:10px;
+}
+/* srce gore desno */
+.hit__srce{
+  position:absolute; top:8px; right:8px; z-index:2;
+  width:26px; height:26px; border-radius:50%; background:#fff; color:var(--brend-crvena);
+  box-shadow:0 1px 4px rgba(51,33,44,.18);
+  display:grid; place-items:center;
+}
+.hit__srce svg{ width:14px; height:14px; display:block }
+/* red sa imenom, cenom i korpom */
+.hit__red{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  margin-top:10px;
+}
+.hit__ime{
+  font-family:var(--f-naslov, var(--naslovi)); font-weight:700; font-size:.82rem;
+  color:var(--brend-crvena); line-height:1.25; white-space:nowrap;
+}
+.hit__ime b{ font-weight:800; margin-left:4px }
+.hit__korpa{
+  width:28px; height:28px; flex:none; border-radius:50%;
+  background:var(--brend-crvena); color:#fff; display:grid; place-items:center;
+}
+.hit__korpa svg{ width:15px; height:15px; display:block }
+.hit__opis{
+  margin-top:3px;
+  font-family:var(--f-tekst, var(--tekst)); font-weight:600; font-size:.66rem;
+  color:#8A6A62; line-height:1.35;
+}
+@media (min-width:700px){
+  .hit__ime{ font-size:.92rem }
+  .hit__opis{ font-size:.74rem }
+  .hit__korpa{ width:32px; height:32px }
+  .hit__korpa svg{ width:17px; height:17px }
+  .hit__srce{ width:30px; height:30px; top:11px; right:11px }
+  .hit__srce svg{ width:16px; height:16px }
+}
+
+/* šipka napretka ispod trake — širina se puni dok se traka prevlači (JS) */
+.hit__sipka{
+  height:5px; border-radius:999px; background:#F2DFD6; overflow:hidden; margin-top:16px;
+}
+.hit__sipka span{
+  display:block; height:100%; width:100%; border-radius:999px; background:var(--brend-crvena);
+  transition:width .12s linear;
+}
+/* Traka se prevlači prstom na telefonu, ali mišem se ne može — zato strelice.
+   Podnožje ih drži levo, a „Prikaži još" desno. */
+.hit__podnozje{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px;
+}
+.hit__strelice{ display:flex; gap:8px }
+.hit__strelica{
+  width:40px; height:40px; flex:none; border-radius:50%; cursor:pointer;
+  display:grid; place-items:center;
+  background:#fff; color:var(--brend-crvena);
+  border:2px solid var(--brend-crvena);
+  transition:background .18s ease, color .18s ease, transform .14s ease, opacity .18s ease;
+}
+.hit__strelica svg{ width:18px; height:18px; display:block }
+.hit__strelica:hover:not(:disabled){ background:var(--brend-crvena); color:#fff; transform:translateY(-2px) }
+.hit__strelica:disabled{ opacity:.35; cursor:default }
+.hit__jos{
+  display:inline-block; text-decoration:none;
+  font-family:var(--f-naslov, var(--naslovi)); font-weight:800; font-size:.86rem;
+  background:var(--brend-crvena); color:#fff; padding:12px 26px; border-radius:10px;
+  transition:background .18s ease, transform .14s ease;
+}
+.hit__jos:hover, .hit__jos:focus-visible{ background:var(--brend-crvena-svetla); transform:translateY(-2px) }
+
+/* ============================================================
+   JAČE BOJE I NEPRAVILNI OBLICI (po Tijaninom moodbordu)
+   Pune boje umesto pastela, asimetrični uglovi umesto svuda istog
+   radijusa, razbacane varnice i cvetići kao ukras.
+   ============================================================ */
+
+/* --- razbacani ukrasi po naslovnoj kartici --- */
+.mrlja{
+  position:absolute; z-index:0; pointer-events:none; opacity:.5;
+}
+.mrlja--1{ width:34px; top:78px;   right:14px; color:var(--zuta) }
+.mrlja--2{ width:40px; top:26%;    left:10px;  color:var(--lila); opacity:.18 }
+.mrlja--3{ width:26px; bottom:22%; right:12px; color:var(--brend-roze); opacity:.35 }
+@media (min-width:700px){
+  .mrlja--1{ width:48px; top:96px; right:26px }
+  .mrlja--2{ width:58px; left:18px }
+  .mrlja--3{ width:36px; right:20px }
+}
+
+/* --- ikonice kategorija: šarena crtana ikona na PASTELNOJ pločici ---
+   Kao na referenci: meka obojena podloga, a sam crtež je višebojan
+   (bela + brend boje), ne beli obris na punoj boji. */
+.vrsta__ikona{
+  background:var(--ton-blag); color:inherit;
+  border-radius:16px; width:52px; height:52px;
+}
+.vrsta__ikona svg{ width:36px; height:36px }
+/* pločica kategorije je svetla, sa tankim obojenim rubom u svom tonu */
+.vrsta{
+  background:#fff; border:2px solid var(--ton-blag);
+  border-radius:20px;
+}
+.vrsta:hover, .vrsta:focus-visible{ border-color:var(--ton) }
+@media (min-width:700px){
+  .vrsta__ikona{ width:62px; height:62px; border-radius:19px }
+  .vrsta__ikona svg{ width:44px; height:44px }
+  .vrsta{ border-radius:24px }
+}
+/* ---- Kategorije: sklopive trake u punoj boji (akordeon) ---- */
+.kat{ position:relative; z-index:1; margin:22px 0 18px }
+.kat__naslov{
+  font-family:var(--naslovi); font-weight:800; font-style:italic;
+  font-size:clamp(1.4rem, 1.1rem + 1.3vw, 2.3rem);
+  color:var(--brend-crvena); text-align:left; margin:0 0 16px;
+}
+.kat__red{
+  border-radius:13px; margin-bottom:7px; overflow:hidden;
+  background:var(--traka); color:var(--slova);
+}
+/* Svaka traka svoja boja; slova su uvek dovoljno tamna (ili krem na crvenoj)
+   da i sitniji opis ostane čitljiv na podlozi. */
+/* Sve trake su u istoj, mekoj pastelnoj jačini. Crvena je ranije bila puna
+   pa je iskakala iz reda; sada je prigušena i nosi tamna slova kao ostale. */
+.kat__red--lila{   --traka:#D6C4EE; --slova:#4A2C77; --veza:#4A2C77 }
+.kat__red--roze{   --traka:#F8C6D5; --slova:#A63527; --veza:#A63527 }
+.kat__red--crvena{ --traka:#EE9E96; --slova:#8A2A21; --veza:#8A2A21 }
+.kat__red--zelena{ --traka:#CCE1AD; --slova:#3B571A; --veza:#3B571A }
+.kat__red--zuta{   --traka:#FADD94; --slova:#8E3D14; --veza:#8E3D14 }
+.kat__red--plava{  --traka:#C2DBEB; --slova:#1C4761; --veza:#1C4761 }
+.kat__red--tirkiz{ --traka:#B9E0DC; --slova:#1D5A55; --veza:#1D5A55 }
+.kat__red--breskva{--traka:#F7C8A8; --slova:#8A4416; --veza:#8A4416 }
+
+/* Kontakt sa kovertom — za kategorije koje se rade po dogovoru, pa umesto
+   linka ka katalogu vode pravo na mejl radionici. */
+.kat__posta{
+  display:inline-flex; align-items:center; gap:12px; text-decoration:none;
+  color:var(--veza);
+}
+.kat__posta-krug{
+  width:44px; height:44px; flex:none; border-radius:50%;
+  display:grid; place-items:center;
+  background:#fff; color:var(--veza);
+  box-shadow:0 3px 0 rgba(0,0,0,.14);
+  transition:transform .14s ease, box-shadow .14s ease;
+}
+.kat__posta-krug svg{ width:22px; height:22px; display:block }
+.kat__posta:hover .kat__posta-krug,
+.kat__posta:focus-visible .kat__posta-krug{ transform:translateY(-2px); box-shadow:0 5px 0 rgba(0,0,0,.16) }
+.kat__posta:active .kat__posta-krug{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.14) }
+.kat__posta-tekst{
+  font-family:var(--f-tekst, var(--tekst)); font-weight:700; font-size:.78rem;
+  line-height:1.35;
+}
+.kat__posta-tekst b{ font-family:var(--f-naslov, var(--naslovi)); font-weight:800; font-size:.86rem }
+
+/* naslov trake je i dugme za otvaranje */
+.kat__glava{
+  list-style:none; cursor:pointer; user-select:none; font-style:italic;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:11px 17px;
+  font-family:var(--naslovi); font-weight:800;
+  font-size:clamp(1rem, .88rem + .48vw, 1.3rem); line-height:1.1;
+}
+.kat__glava::-webkit-details-marker{ display:none }
+/* strelica desno se okrene kad je traka otvorena */
+.kat__glava::after{
+  content:""; flex:none; width:9px; height:9px; margin-right:2px;
+  border-right:2.5px solid currentColor; border-bottom:2.5px solid currentColor;
+  transform:rotate(45deg) translate(-2px,-2px);
+  transition:transform .2s ease;
+}
+.kat__red[open] .kat__glava::after{ transform:rotate(-135deg) translate(-2px,-2px) }
+.kat__glava:hover{ background:rgba(255,255,255,.16) }
+
+.kat__telo{
+  display:grid; gap:10px; padding:0 20px 12px;
+}
+@media (min-width:640px){
+  .kat__telo{ grid-template-columns:1fr auto; align-items:center; gap:20px; padding:0 20px 14px }
+}
+.kat__tekst p{
+  margin:0 0 12px;
+  font-family:var(--f-tekst, var(--tekst)); font-weight:600;
+  font-size:clamp(.8rem, .74rem + .3vw, .92rem); line-height:1.5;
+  max-width:46ch;
+}
+.kat__veza{
+  display:inline-block; text-decoration:none;
+  font-family:var(--f-naslov, var(--naslovi)); font-weight:800; font-size:.84rem;
+  color:var(--veza); border-bottom:2px solid currentColor; padding-bottom:2px;
+}
+.kat__veza:hover{ opacity:.75 }
+/* kad kategorija ima više fotografija (npr. bela šolja + kolor kompleti) */
+/* align-items:start — bez toga se niža slika razvuče na visinu više, pa
+   ispod nje ostane prazan prostor u boji reda */
+.kat__slike{ display:grid; grid-template-columns:1fr 1fr; gap:9px; align-items:start }
+.kat__slike .kat__slika{ aspect-ratio:auto }
+.kat__slike--tri{ grid-template-columns:repeat(3, 1fr); gap:7px }
+.kat__slike--sest{ grid-template-columns:repeat(6, 1fr); gap:6px }
+@media (min-width:640px){
+  .kat__slike{ width:250px; flex:none }
+  .kat__slike--tri{ width:300px }
+  .kat__slike--sest{ width:420px }
+  /* kvadratni okviri — u njih podjednako lepo staje i uspravna i položena
+     fotografija kad se koristi object-fit:contain */
+  .kat__slike .kat__slika{ width:100%; aspect-ratio:auto }
+}
+/* fotografija u zaobljenom okviru desno, kao na referenci */
+/* Fluidan, nepravilan oblik umesto pravougaonika — svaki ugao je drugačije
+   zaobljen (osam vrednosti: vodoravni / uspravni poluprečnici). Vrednosti su
+   umerene da se proizvod na fotografiji ne seče. */
+/* Bez fiksnog odnosa stranica: oblik prati oblik same fotografije. Zato u
+   njemu nema praznine, pa se ne vidi nikakva druga boja, a proizvod se vidi
+   ceo jer se ništa ne seče. */
+.kat__slika{
+  width:100%; overflow:hidden;
+  /* Procentualni blob je sečao proizvod po uglovima. Vrednosti su sada u
+     pikselima i nejednake — oblik je i dalje nepravilan, ali zaobljenje
+     zagrize svega dvadesetak piksela, pa proizvod ostaje ceo. */
+  border-radius:34px 12px 28px 16px / 26px 20px 34px 12px;
+  background:none; line-height:0;
+}
+.kat__slike .kat__slika:nth-child(2){
+  border-radius:12px 34px 16px 28px / 20px 26px 12px 34px;
+}
+.kat__slika img{ border-radius:inherit }
+@media (min-width:640px){
+  .kat__slika{ width:210px; flex:none }
+}
+/* height:auto mora izričito — atribut height na <img> bi inače razvukao
+   sliku i vratio praznину u oblik. */
+.kat__slika img{ width:100%; height:auto; display:block; border-radius:inherit }
+
+/* ikonica u kategorijama — ista figura kao gore u traci ikonica,
+   samo krupnija, u sopstvenom krugu boje trake da se uklopi. */
+.kat__ikona{
+  width:66px; height:66px; flex:none; display:grid; place-items:center;
+  border-radius:50%; background:rgba(255,255,255,.55);
+}
+.kat__ikona svg{ width:42px; height:42px }
+@media (min-width:640px){
+  .kat__ikona{ width:78px; height:78px }
+  .kat__ikona svg{ width:50px; height:50px }
+}
+
+/* ============================================================
+   DVOPANELNI HERO: levo roze polje sa naslovom i tekstom,
+   desno crveno polje sa krem karticom punom slatkih ikonica.
+   ============================================================ */
+.dvopanel{
+  position:relative; z-index:1;
+  display:grid; gap:12px; margin-bottom:16px;
+}
+/* Dve kolone tek od 900px — na tabletu (768) levi panel bi bio pretesan za
+   naslov, pa hero ostaje jedan ispod drugog, a širinu koristi mreža tema. */
+@media (min-width:900px){ .dvopanel{ grid-template-columns:1fr 1.05fr; gap:16px } }
+
+.panel{ border-radius:26px; padding:26px 22px }
+@media (min-width:760px){ .panel{ border-radius:32px; padding:38px 34px } }
+
+/* ---- levo: roze polje ---- */
+.panel--levo{
+  background:var(--brend-roze-blaga);
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  justify-content:center; gap:16px;
+  padding-bottom:5%;
+}
+/* Glavni naslov strane — jedna boja, bez belog okvira oko slova. */
+.panel__naslov{
+  margin:0; max-width:16ch;
+  font-family:var(--naslovi); font-weight:800;
+  font-size:clamp(1.6rem, 1.2rem + 2vw, 2.7rem);
+  line-height:1.1; letter-spacing:-.01em;
+  color:var(--brend-crvena);
+}
+.panel__tekst{
+  margin:0; max-width:34ch;
+  font-family:var(--tekst); font-weight:600;
+  font-size:clamp(.86rem, .78rem + .35vw, 1rem); line-height:1.55; color:#5A3038;
+}
+/* "Moja Slavice" — potpis odmah ispod glavnog naslova, manji i u istoj boji */
+.panel__naslov-malo{
+  display:inline-block; margin-top:.15em; margin-bottom:.2em;
+  font-size:clamp(1.6rem, 1.2rem + 2vw, 2.7rem);
+}
+.panel__srce{
+  width:1.3em; height:1.3em; vertical-align:-.22em;
+  display:inline-block; margin:0 .1em;
+  animation:kucanje-srca 1.1s ease-in-out infinite;
+}
+.panel__srce{ color:var(--brend-crvena) }
+@keyframes kucanje-srca{
+  0%, 100%{ scale:1 }
+  25%{ scale:1.18 }
+  40%{ scale:.96 }
+}
+/* ime brenda u drugom redu — malo jače od ostatka rečenice */
+.panel__tekst b{ font-family:var(--naslovi); font-weight:800; color:var(--brend-crvena) }
+
+/* Dva retro „pečata" jedan pored drugog. Namerno NISU u obliku pilule kao
+   dugmad desno, da se ne pomisli da se na njih klikće. Šire se u odnosu na
+   panel (min(48%, …)), pa uvek stanu u red i na telefonu i na monitoru. */
+.panel__pecati{
+  display:flex; justify-content:center; align-items:center; gap:12px; width:100%;
+}
+.panel__brojka{
+  position:relative;
+  width:min(48%, 116px); aspect-ratio:1; flex:none;
+  display:grid; place-content:center; text-align:center; gap:1px;
+  border-radius:50%; background:#fff;
+  rotate:-6deg;
+  box-shadow:
+    0 0 0 3px var(--brend-crvena),
+    0 0 0 6px #fff,
+    0 0 0 9px var(--brend-roze-srednja),
+    0 6px 14px -6px rgba(168,22,37,.35);
+}
+/* drugi pečat je zarotiran na drugu stranu i ima obrnut redosled prstenova,
+   da par ne izgleda kao dva ista otiska */
+.panel__brojka--dva{
+  rotate:5deg;
+  box-shadow:
+    0 0 0 3px var(--brend-roze),
+    0 0 0 6px #fff,
+    0 0 0 9px var(--brend-crvena),
+    0 6px 14px -6px rgba(168,22,37,.35);
+}
+.panel__brojka--dva .panel__broj{ color:var(--brend-roze-tamna) }
+.panel__brojka-iskra{
+  position:absolute; top:-4px; right:-4px; width:22px; height:22px;
+  color:#FFC93C; pointer-events:none; rotate:6deg;
+}
+.panel__brojka--dva .panel__brojka-iskra{ right:auto; left:-4px; rotate:-5deg }
+.panel__broj{
+  font-family:var(--naslovi); font-weight:800;
+  font-size:clamp(1.35rem, 1.1rem + 1.1vw, 1.85rem); line-height:.95;
+  color:var(--brend-crvena);
+}
+.panel__brojOpis{
+  font-family:var(--tekst); font-weight:800;
+  font-size:clamp(.54rem, .48rem + .25vw, .64rem);
+  line-height:1.25; color:#7A424C; letter-spacing:.02em;
+}
+@media (min-width:760px){
+  .panel__pecati{ gap:14px }
+  .panel__brojka-iskra{ width:26px; height:26px; top:-6px; right:-6px }
+  .panel__brojka--dva .panel__brojka-iskra{ left:-6px }
+}
+
+.panel__cinjenice{
+  list-style:none; margin:0; padding:0;
+  display:flex; flex-wrap:wrap; justify-content:center; gap:5px 16px;
+  font-family:var(--tekst); font-weight:700; font-size:.74rem;
+  color:#7A424C;
+}
+.panel__cinjenice li{ display:inline-flex; align-items:center; gap:5px }
+.panel__cinjenice svg{ width:11px; height:11px; color:var(--brend-crvena); flex:none }
+
+/* ---- desno: crveno polje sa krem karticom ---- */
+.panel--desno{
+  background:var(--brend-crvena);
+  display:flex; align-items:center; justify-content:center;
+}
+.panel__karta{
+  width:100%; background:var(--brend-krem); border-radius:20px; padding:18px 16px 16px;
+  overflow:hidden;
+}
+@media (min-width:760px){ .panel__karta{ border-radius:24px; padding:24px 22px 20px } }
+
+/* Karirana traka unutar krem kartice — ista roze/crvena šara kao ostatak
+   sajta. Negativne margine je razvlače do same ivice kartice, preko padinga. */
+.karo-traka{
+  height:14px;
+  margin:-18px -16px 16px;
+  background:repeating-linear-gradient(90deg, var(--brend-crvena) 0 14px, var(--brend-roze-srednja) 14px 28px);
+}
+/* ista traka, ali kao razdelnik u sredini — ne ide do ivice, pa je zaobljena */
+.karo-traka--sredina{
+  margin:16px 0 14px; height:12px; border-radius:999px;
+  background:repeating-linear-gradient(90deg, var(--brend-crvena) 0 12px, var(--brend-roze-srednja) 12px 24px);
+}
+@media (min-width:760px){
+  .karo-traka{
+    height:18px; margin:-24px -22px 20px;
+    background:repeating-linear-gradient(90deg, var(--brend-crvena) 0 18px, var(--brend-roze-srednja) 18px 36px);
+  }
+  .karo-traka--sredina{
+    height:14px; margin:20px 0 16px; border-radius:999px;
+    background:repeating-linear-gradient(90deg, var(--brend-crvena) 0 14px, var(--brend-roze-srednja) 14px 28px);
+  }
+}
+
+/* mreža slatkih ikonica — 3 u redu */
+.panel__uvod{
+  margin:0 0 12px; text-align:center;
+  font-family:var(--naslovi); font-weight:800; font-size:15px;
+  color:var(--brend-crvena);
+}
+.ikonice{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px }
+@media (min-width:760px){ .ikonice{ grid-template-columns:repeat(4,1fr); gap:12px } }
+.ikonica{
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:12px 4px 10px; border-radius:16px; text-decoration:none;
+  background:#fff; border:2px solid #F3E2D0;
+  transition:transform .16s cubic-bezier(.2,.9,.3,1.3), border-color .16s ease;
+}
+/* Svaka plocica nosi svoju retro boju — podloga i ivica iz iste porodice,
+   a naziv u tamnijem tonu te boje da ostane citljiv. Crvena kontura na
+   samim crtezima drzi ceo skup na okupu i pored sarenila. */
+.ikonica--1{ --tlo:#D6C4EE; --ivica:#B69EDF; --slovo:#4A2C77 }  /* Soljice   — lila    */
+.ikonica--2{ --tlo:#F8C6D5; --ivica:#EBA0B8; --slovo:#A63527 }  /* Limenke   — roze    */
+.ikonica--3{ --tlo:#B9E0DC; --ivica:#8FC9C3; --slovo:#1D5A55 }  /* Flasice   — tirkiz  */
+.ikonica--4{ --tlo:#F7C8A8; --ivica:#E3A47B; --slovo:#8A4416 }  /* Tumbleri  — breskva */
+.ikonica--5{ --tlo:#EE9E96; --ivica:#DB7C72; --slovo:#8A2A21 }  /* Cegeri    — crvena  */
+.ikonica--6{ --tlo:#CCE1AD; --ivica:#AECA85; --slovo:#3B571A }  /* Peratonice— zelena  */
+.ikonica--7{ --tlo:#FADD94; --ivica:#EEC665; --slovo:#8E3D14 }  /* Ljubimci  — zuta    */
+.ikonica--8{ --tlo:#C2DBEB; --ivica:#9BC0D7; --slovo:#1C4761 }  /* Bedzevi   — plava   */
+.ikonica--9{ --tlo:#F5C89B; --ivica:#E5A868; --slovo:#7A3E0A }  /* Sport     — narandzasta */
+.ikonica--10{ --tlo:#DAD6D3; --ivica:#B8B2AD; --slovo:#3C3733 }  /* Ostalo    — siva    */
+.ikonica--11{ --tlo:#B9E0DC; --ivica:#8FC9C3; --slovo:#1D5A55 }  /* Medicina  — tirkiz  */
+.ikonica--12{ --tlo:#D6C4EE; --ivica:#B69EDF; --slovo:#4A2C77 }  /* Serije    — lila    */
+.ikonica{ background:var(--tlo, #fff); border-color:var(--ivica, #F3E2D0) }
+
+.ikonica:hover, .ikonica:focus-visible{ transform:translateY(-3px); border-color:var(--brend-crvena) }
+.ikonica svg{ width:36px; height:36px; display:block }
+.ikonica span{
+  font-family:var(--naslovi); font-weight:700; font-size:.64rem;
+  color:var(--slovo, var(--brend-crvena)); text-align:center; line-height:1.15;
+}
+@media (min-width:760px){
+  .ikonica{ padding:16px 6px 13px; border-radius:19px }
+  .ikonica svg{ width:46px; height:46px }
+  .ikonica span{ font-size:.76rem }
+}
+
+/* dva izbora ispod rešetke — jedno ispod drugog, da natpis ne prelama */
+.izbori{ display:grid; gap:8px; margin-top:14px }
+.izbor-dugme{
+  display:block; text-align:center; text-decoration:none; white-space:nowrap;
+  font-family:var(--naslovi); font-weight:800; font-size:.88rem;
+  padding:13px 14px; border-radius:999px;
+  background:#fff; color:var(--brend-crvena); border:2px solid var(--brend-crvena);
+  transition:transform .14s ease, background .18s ease, color .18s ease;
+}
+.izbor-dugme:hover, .izbor-dugme:focus-visible{ transform:translateY(-2px); background:#FFF0EC }
+.izbor-dugme--puno{ background:var(--brend-crvena); color:#fff }
+.izbor-dugme--puno:hover, .izbor-dugme--puno:focus-visible{ background:var(--brend-crvena-svetla); color:#fff }
+
+/* --- talasasta („rese") ivica ispod hero-a, kao izrezani rub sa reference --- */
+.talas{
+  position:relative; z-index:1; height:16px; margin:2px 0 14px;
+  background:radial-gradient(circle at 50% 0, transparent 9px, var(--brend-roze-srednja) 9.5px) repeat-x;
+  background-size:20px 16px;
+}
+@media (min-width:700px){
+  .talas{ height:20px; background-size:26px 20px;
+    background-image:radial-gradient(circle at 50% 0, transparent 12px, var(--brend-roze-srednja) 12.5px) }
+}
+/* bedž „nova kolekcija" — sad puna žuta, najsvetlija tačka u hero-u */
+.eyebrow{
+  background:var(--zuta); color:#7A5308; border-color:rgba(122,83,8,.28);
+}
+a.eyebrow:hover{ background:#FFD968 }
+@keyframes eyebrowTreperi{
+  0%, 100% { box-shadow:0 0 0 0 rgba(232,169,22,.55) }
+  50%      { box-shadow:0 0 0 9px rgba(232,169,22,0) }
+}
+/* kartica naslovne — nepravilni uglovi umesto svuda istih 30px */
+.card{ border-radius:40px 16px 40px 16px }
+@media (min-width:700px){ .card{ border-radius:52px 20px 52px 20px } }
+/* dve velike pločice takođe dobijaju krivi ugao */
+.tile{ border-radius:26px 10px 26px 10px }
+.tile.alt{ border-radius:10px 26px 10px 26px }
+.tile-img{ border-radius:23px 7px 0 0 }
+.tile.alt .tile-img{ border-radius:7px 23px 0 0 }
+.divider svg{ width:30px; height:30px; flex-shrink:0 }
+
+.grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; position:relative; z-index:1 }
+.tile{
+  background:#fff; border-radius:18px; border:3px solid var(--pink-bg); overflow:hidden;
+  display:flex; flex-direction:column;
+  box-shadow:0 6px 0 -2px rgba(168,22,37,.1), 0 8px 16px rgba(168,22,37,.14);
+}
+/* podloga ide iz roze u mentol — slika šoljice tako "sedi" na mekom prelazu
+   umesto na ravnoj roze površini */
+.tile-img{
+  height:160px; max-height:none; overflow:hidden; position:relative;
+  background:linear-gradient(150deg, #F7C9D2 0%, #F7C9D2 42%, var(--mint-soft) 100%);
+  display:flex; align-items:center; justify-content:center; padding:18px;
+  border-radius:15px 15px 0 0;
+}
+/* contain, ne cover — cela šolja i ceo natpis moraju da se vide, ništa se ne seče.
+   Veći padding oko slike ublažava "ram" gde se boja fotografije naglo graniči
+   sa roze pozadinom kartice — sad svuda ostaje vidljiv isti roze okvir. */
+.tile-img img{ width:100%; height:100%; object-fit:contain; display:block }
+/* leva slika (bela šolja bez pozadine) deluje mnogo veća od desne na istoj
+   visini kartice — dodatni padding je smanjuje da šolje izgledaju ujednačeno. */
+.tile-img--contain{ padding:32px }
+/* Fotografija koja već ima svoju pozadinu (npr. flašica na roze podlozi):
+   puni celu pločicu, bez padinga i bez contain-a. Inače se videla podloga
+   pločice oko fotografije, pa je izgledalo kao dupli ram. */
+/* Fotografija „Poruči gotov proizvod" ima svoju roze pozadinu tamniju od
+   pločice, pa se oko nje video oštar pravougaonik. Podloga pločice ovde nosi
+   tačno boje sa ivica same fotografije (levo svetlije → desno tamnije), pa
+   slika prelazi u pozadinu bez vidljivog šava. */
+.tile.alt .tile-img{
+  background:linear-gradient(90deg,
+    rgb(240,178,185) 0%,
+    rgb(236,172,179) 30%,
+    rgb(228,162,167) 62%,
+    rgb(216,145,149) 100%);
+}
+/* dodatno omekšavanje: krajnji pikseli slike se stapaju sa podlogom */
+.tile.alt .tile-img img{
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+  mask-image:linear-gradient(90deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+}
+/* Fotografija koja već ima svoju pozadinu (flašica) puni celu pločicu.
+   Selektori su namerno iste težine kao .tile.alt pravila iznad i dolaze
+   posle njih, inače bi ih ona pregazila i ostao bi vidljiv dupli ram. */
+/* Fotografija flašice ima svoju roze pozadinu. Podloga pločice nosi TAČNO
+   tu istu boju (pipetom iz uglova fotografije), pa se kod object-fit:contain
+   spoj ne vidi — flašica se vidi cela, a nema duplog rama.
+   Kod cover-a se ranije nije videla cela. */
+.tile .tile-img--puna,
+.tile.alt .tile-img--puna{ padding:0; background:#B34557 }
+.tile .tile-img--puna img,
+.tile.alt .tile-img--puna img{
+  width:100%; height:100%; object-fit:contain;
+  -webkit-mask-image:none; mask-image:none;
+}
+.tile:not(.alt) .tile-img::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at 50% 48%, transparent 40%, rgba(61,99,84,.13) 100%);
+}
+.tile-body{ padding:10px 10px 12px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1 }
+.tile-title{
+  font-family:var(--f-naslov); font-weight:700; font-size:.85rem; line-height:1.15; color:var(--cherry-dark);
+  display:inline-flex; align-items:center; gap:5px;
+}
+.tile-title svg{ width:15px; height:15px; flex:none }
+/* ikonice preuzete sa naslovne su detaljnije od trešnje, pa im treba više prostora */
+.tile-title__ikona{ width:26px !important; height:26px !important }
+.tile-sub{ font-family:var(--f-tekst); font-size:.7rem; font-weight:600; color:#4A4A4A; line-height:1.25; margin-bottom:4px }
+.tile-btn{
+  margin-top:auto; width:100%; display:inline-flex; align-items:center; justify-content:center; gap:5px;
+  background:var(--btn-bordo); color:#fff; font-family:var(--f-naslov); font-weight:700; font-size:.75rem;
+  letter-spacing:.02em; padding:8px 8px; border-radius:12px; text-decoration:none;
+  box-shadow:0 3px 0 var(--btn-bordo-shadow);
+  transition:transform .12s ease, box-shadow .12s ease, background .18s ease;
+}
+.tile-btn{ border:0; cursor:pointer }
+.tile-btn:hover, .tile-btn:focus-visible{
+  transform:translateY(-1px);
+  background:var(--brend-crvena-svetla);
+  box-shadow:0 3px 0 var(--btn-bordo-shadow);
+}
+.tile-btn:active{
+  transform:translateY(3px);
+  background:var(--brend-crvena-tamna);
+  box-shadow:0 1px 0 var(--btn-bordo-shadow);
+}
+/* Dugme ostaje crveno i na hover, pa strelica/plus ostaju beli. */
+.tile-btn svg{ width:12px; height:12px; fill:#fff }
+.tile-btn svg path{ stroke:#fff }
+
+.card > footer{
+  text-align:center; margin-top:16px; font-family:var(--f-tekst); font-size:.84rem;
+  font-weight:600; color:#4A4A4A; position:relative; z-index:1;
+}
+.card > footer span{ color:var(--cherry) }
+.card > footer svg{ width:14px; height:14px; vertical-align:-2px }
+
+.naslovna{ padding:24px 20px 40px }
+@media (max-width:640px){
+  .naslovna{ padding:22px 18px 34px }
+  /* prsti, ne kursor — dugmad na telefonu moraju da budu lako pogodiva */
+  /* na uskim telefonima natpis sme da se prelomi, samo da ne iscuri iz dugmeta */
+  .store-link{ padding:14px 20px; max-width:100%; width:100%; white-space:normal }
+  .tile-btn{ padding:11px 10px; font-size:.78rem }
+  .socials a{ width:42px; height:42px }
+  .socials svg{ width:19px; height:19px }
+}
+
+/* Bez mrtvog roze prostora između hero-kartice i sledeće sekcije na monitoru —
+   prelaz je odmah, ne posle pune sekcijske margine od 104px. */
+@media (min-width:641px){ .koraci-strana{ padding-top:36px } }
+
+/* ============================================================
+   NASLOVNA — tablet (768px–1023px)
+   Još uvek jedna kolona (dvokolonski hero bi ovde bio pretesan), ali kartica
+   se širi i sve raste, da se ne gleda telefonski prikaz nasred iPada.
+   ============================================================ */
+@media (min-width:768px) and (max-width:1023px){
+  .naslovna{ padding:40px 28px 60px }
+  .card{ max-width:720px; padding:34px 34px 38px; border-radius:28px }
+
+  .logo-wrap img{ width:210px; max-width:none }
+  .tagline{ font-size:1rem; margin:4px 0 14px }
+  .tagline svg{ width:18px; height:18px }
+  .socials{ gap:12px; margin-bottom:18px }
+  .socials a{ width:42px; height:42px }
+  .socials svg{ width:19px; height:19px }
+
+  .eyebrow{ font-size:.78rem; padding:7px 16px; margin-bottom:14px }
+  .eyebrow svg{ width:16px; height:16px }
+  .subhead{ max-width:46ch; margin-bottom:20px }
+  .store-link{ padding:15px 32px }
+
+  .hero-frame{ border-radius:22px }
+  .hero-frame img{ border-radius:18px }
+
+  .divider{ margin:24px 0 22px }
+  .divider svg{ width:34px; height:34px }
+
+  .grid{ gap:20px }
+  .tile-img{ height:230px; padding:26px }
+  .tile-img--contain{ padding:44px }
+  .tile-body{ padding:18px 16px 20px; gap:6px }
+  .tile-title{ font-size:1.02rem }
+  .tile-title svg{ width:18px; height:18px }
+  .tile-sub{ font-size:.84rem; margin-bottom:6px }
+  .tile-btn{ padding:12px 14px; font-size:.86rem; border-radius:13px }
+
+  .card > footer{ margin-top:26px; font-size:.92rem }
+  .card > footer svg{ width:15px; height:15px }
+
+  .korak-karta{ padding:26px 22px 24px }
+}
+
+/* ============================================================
+   NASLOVNA — desktop (min-width:1024px)
+   Prava dvokolonska celina, ne uska bela kartica na sredini. Sadržaj
+   diše preko celog ekrana do max-width:1200px, tekst je levo poravnat,
+   fotografija se vidi cela (bez isečenih fiksnih visina).
+   ============================================================ */
+@media (min-width:1024px){
+  .naslovna{ padding:56px 40px 88px }
+
+  /* Bela kartica koja "pluta" iznad roze pozadine — široka koliko i navigacija,
+     sa mekom razlivenom senkom umesto oštrog okvira. */
+  .card{
+    max-width:var(--sirina);
+    background:#FFFDFC; border:0; border-radius:32px;
+    box-shadow:0 30px 80px -34px rgba(168,22,37,.30), 0 4px 20px rgba(168,22,37,.07);
+    padding:clamp(40px, 3.6vw, 60px);
+  }
+  .card::before{ display:none }
+
+  /* hero: dve kolone — tekst levo, fotografija desno — i visok koliko i ekran,
+     da prvi utisak na monitoru bude cela slika a ne uska traka na vrhu */
+  .hero-top{
+    display:grid; grid-template-columns:1fr 1.02fr; align-items:center;
+    gap:clamp(48px, 5vw, 88px);
+    /* kartica sada ima svoj padding — hero mora da ga odbije da bi cela
+       sekcija i dalje stala u prvi ekran */
+    min-height:min(calc(100vh - 300px), 640px);
+    margin-bottom:64px;
+  }
+  .hero-info{ text-align:left }
+
+  .logo-wrap{ justify-content:flex-start; margin-bottom:20px }
+  .logo-wrap img{ width:clamp(200px, 16vw, 250px); max-width:none }
+
+  .tagline{ text-align:left; justify-content:flex-start; font-size:1.08rem; margin:0 0 22px }
+  .tagline svg{ width:20px; height:20px }
+
+  .socials{ justify-content:flex-start; margin-bottom:34px; gap:14px }
+  .socials a{ width:46px; height:46px }
+  .socials svg{ width:21px; height:21px }
+
+  .hero{ text-align:left; margin-bottom:0 }
+  .eyebrow{ font-size:.86rem; padding:9px 19px; margin-bottom:20px }
+  .eyebrow svg{ width:17px; height:17px }
+  .hero h1{ margin:0 0 24px }
+  .subhead{ margin:0 0 34px; max-width:30ch; line-height:1.62 }
+  .store-link{ width:fit-content; max-width:none; margin:0; padding:17px 36px }
+
+  /* fotografija — cela, bez isecanja fiksnom visinom */
+  .hero-frame{ height:auto; margin-bottom:0; border-radius:24px }
+  .hero-frame img{ width:100%; height:auto; object-fit:cover; border-radius:20px }
+  .hero-frame::before{ inset:-26px -26px -34px; border-radius:48px; filter:blur(34px); opacity:.6 }
+
+  .divider{ margin:0 0 52px }
+  .divider svg{ width:38px; height:38px }
+
+  /* dve kartice ispod hero-a — jedna pored druge, dovoljno široke da ne deluju
+     kao dva sitna kvadrata izgubljena u sredini širokog kontejnera */
+  .grid{ display:flex; justify-content:center; flex-wrap:wrap; gap:36px; max-width:1100px; margin-inline:auto }
+  .tile{ flex:1 1 420px; max-width:520px }
+
+  /* obe slike dele istu fiksnu visinu — contain ih ujednačava bez sečenja.
+     Leva (bela šolja) dobija još više padinga da ne deluje krupnija od desne. */
+  .tile-img{ height:320px; max-height:none; padding:48px }
+  .tile-img img{ width:100%; height:100%; object-fit:contain; display:block }
+  .tile-img--contain{ padding:72px }
+
+  .tile-body{ padding:28px 26px 30px; gap:9px }
+  .tile-title{ font-size:1.2rem }
+  .tile-title svg{ width:20px; height:20px }
+  .tile-sub{ font-size:.92rem; margin-bottom:8px }
+  .tile-btn{ padding:14px 18px; font-size:.92rem; border-radius:14px }
+
+  .card > footer{ margin-top:56px; font-size:1rem }
+  .card > footer svg{ width:16px; height:16px }
+}
+
+/* Široki monitori — hero ostaje dvokolonski, samo dobija još vazduha */
+@media (min-width:1440px){
+  .naslovna{ padding:64px 48px 104px }
+  .hero-top{ gap:96px; margin-bottom:88px }
+  .grid{ gap:44px; max-width:1180px }
+  .tile{ flex:1 1 460px; max-width:568px }
+  .tile-img{ height:360px; padding:54px }
+  /* leva šolja je položena, desna uspravna — bez dodatnog padinga leva deluje
+     osetno krupnije na istoj visini okvira */
+  .tile-img--contain{ padding:92px }
+}
+
+@media (max-width:360px){
+  .hero h1{ font-size:1.7rem }
+  .card{ padding:22px 16px 26px }
+}
+
+/* ============================================================
+   ŠOLJA
+   ============================================================ */
+.scena{ position:relative; width:100%; max-width:380px; margin-inline:auto }
+.scena::after{
+  content:""; position:absolute; left:50%; bottom:-16px; translate:-50% 0;
+  width:62%; height:24px; border-radius:50%;
+  background:rgba(51,33,44,.20); filter:blur(15px); z-index:0;
+}
+.solja{ position:relative; isolation:isolate; width:100%; container-type:inline-size }
+.solja__foto{ width:100%; height:auto; display:block; position:relative; z-index:1 }
+/* natpis ide na prednju stranu — ručka je levo */
+.natpis{
+  position:absolute; left:37.5%; top:51%; width:51%; translate:0 -50%;
+  z-index:3; text-align:center; pointer-events:none;
+  display:flex; flex-direction:column; justify-content:center; align-items:center; gap:.06em;
+}
+.natpis[hidden]{ display:none }
+.natpis__unutra{ transform:perspective(340px) rotateY(6deg); width:100% }
+/* --osnova daje stil slova, --skala bira korisnik za svaki red posebno */
+.natpis__red{
+  display:block; width:100%; word-break:break-word;
+  font-size:calc(var(--osnova, 1rem) * var(--skala, 1) * var(--uvecanje, 1));
+}
+/* Tumbler ima svoj uži okvir (natpis:width 66% umesto 51%), pa mu isti cqw
+   račun daje manja slova nego šoljici — nadoknađujemo direktnim uvećanjem
+   umesto podešavanja svakog stila posebno. */
+.solja[data-proizvod="flasica"] .natpis__red{ --uvecanje:1.5 }
+
+.natpis[data-slova="debela"] .natpis__red{
+  font-family:var(--naslovi); font-weight:800; text-transform:uppercase;
+  line-height:.95; letter-spacing:-.015em; --osnova:clamp(18px, 7.6cqw, 45px);
+}
+.natpis[data-slova="kontura"] .natpis__red{
+  font-family:var(--naslovi); font-weight:800; text-transform:uppercase;
+  line-height:.96; letter-spacing:-.012em; --osnova:clamp(18px, 7.5cqw, 44px);
+  text-shadow:
+    -.055em -.055em 0 var(--kontura), .055em -.055em 0 var(--kontura),
+    -.055em .055em 0 var(--kontura), .055em .055em 0 var(--kontura),
+    0 .075em 0 var(--kontura);
+}
+.natpis[data-slova="marker"] .natpis__red{
+  font-family:var(--marker); font-weight:700; text-transform:uppercase;
+  line-height:1.02; letter-spacing:-.008em; --osnova:clamp(17px, 6.9cqw, 40px);
+}
+.natpis[data-slova="strip"] .natpis__red{
+  font-family:var(--strip); text-transform:uppercase;
+  line-height:.98; letter-spacing:.018em; --osnova:clamp(19px, 8.4cqw, 49px);
+}
+.natpis[data-slova="masina"] .natpis__red{
+  font-family:var(--masina); text-transform:uppercase;
+  line-height:1.66; letter-spacing:.26em; text-indent:.26em; --osnova:clamp(10px, 3.6cqw, 20px);
+}
+.natpis[data-slova="elegantna"] .natpis__red{
+  font-family:var(--elegantna); font-weight:500; text-transform:uppercase;
+  line-height:1.28; letter-spacing:.03em; --osnova:clamp(14px, 5.4cqw, 32px);
+}
+.natpis[data-slova="okrugla"] .natpis__red{
+  font-family:var(--okrugla); font-weight:700; text-transform:uppercase;
+  line-height:1.02; letter-spacing:-.005em; --osnova:clamp(17px, 7.2cqw, 43px);
+}
+.natpis--prazan{ opacity:.4 }
+.natpis--prazan .natpis__red{
+  font-family:var(--tekst) !important; font-weight:700 !important;
+  font-size:clamp(22px,9cqw,38px) !important; letter-spacing:.02em !important;
+  line-height:1.4 !important; text-transform:none !important; text-shadow:none !important;
+}
+.solja[data-proizvod="flasica"] .natpis--prazan .natpis__red{
+  font-size:clamp(26px,13.5cqw,42px) !important;
+}
+
+/* ---- veličina po redu ---- */
+.redovi{ margin-top:22px; padding-top:20px; border-top:1.5px dashed var(--ivica) }
+.redovi__naslov{ font-family:var(--naslovi); font-weight:800; font-size:17px; margin-bottom:2px }
+.red-stavka{ display:flex; align-items:center; gap:12px; margin-bottom:9px }
+.red-stavka__tekst{
+  flex:1; min-width:0; font-size:14.5px; font-weight:700; color:var(--mastilo);
+  background:var(--belo); border:1.5px solid var(--ivica); border-radius:999px;
+  padding:8px 16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.red-stavka__mere{ display:flex; gap:5px; flex:none }
+.mera{
+  width:42px; height:38px; padding:0; cursor:pointer; line-height:1;
+  background:var(--belo); border:1.5px solid var(--ivica); border-radius:12px;
+  font-family:var(--naslovi); font-weight:800; color:var(--mastilo-blago);
+  transition:all .18s cubic-bezier(.2,.9,.3,1.25);
+}
+.mera--malo{ font-size:13px }
+.mera--srednje{ font-size:17px }
+.mera--veliko{ font-size:22px }
+.mera:hover{ border-color:var(--roze-duboka); transform:translateY(-2px) }
+.mera[aria-pressed="true"]{ border-color:var(--crvena); color:var(--crvena-tamna); box-shadow:0 0 0 3px var(--roze) }
+@keyframes smena{ from{ opacity:0; transform:translateY(9px) scale(.95) } to{ opacity:1; transform:none } }
+.natpis--smena{ animation:smena .55s cubic-bezier(.2,.9,.3,1.25) both }
+
+/* ============================================================
+   FLAŠICA + SLIKA NA PROIZVODU
+   Isti .solja/.natpis okvir nosi i šolju i flašicu — samo se menja
+   fotografija (JS) i pozicija natpisa (data-proizvod niže).
+   ============================================================ */
+/* Fotografija je kadrirana blizu tumblera, pa telo zauzima 17–84% širine.
+   Natpis staje unutar tog pojasa i više se ne umanjuje na 42% — zato su
+   slova sada čitljiva. */
+.solja[data-proizvod="flasica"] .natpis{
+  left:50.6%; top:56%; width:66%; translate:-50% -50%;
+}
+/* Bez umanjenja — kontejner je sad dovoljno širok (300px) da cqw računi daju
+   čitljiva slova i bez ručnog skaliranja. */
+.solja[data-proizvod="flasica"] .natpis__unutra{ transform:none }
+
+/* slika koju korisnik pošalje — maskirana inline SVG-om (data: URI, bez
+   spoljnog fajla da radi i kad se strana otvori direktno sa diska) koji
+   tačno prati telo proizvoda. Kontejner prekriva celu fotografiju (inset:0,
+   isti okvir kao .solja__foto), a maska sama određuje vidljivi oblik. */
+.natpis--slika{
+  inset:0; left:0; top:0; width:100%; height:100%; translate:none;
+  overflow:hidden;
+  mask-repeat:no-repeat; mask-position:center; mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat; -webkit-mask-position:center; -webkit-mask-size:100% 100%;
+  mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 28,20 Q 63,30 100,20 L 100,80 Q 63,87 28,80 Z%22/%3E%3C/svg%3E');
+  -webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 28,20 Q 63,30 100,20 L 100,80 Q 63,87 28,80 Z%22/%3E%3C/svg%3E');
+}
+.natpis--slika img{
+  width:100%; height:100%; object-fit:cover; object-position:50% 22%; display:block;
+  cursor:grab; touch-action:none;
+}
+.natpis--slika img:active{ cursor:grabbing }
+/* Traka-efekat (isečena slika u uske pojaseve) je probana i napuštena —
+   na pravim fotografijama je pravila vidljive praznine i nazubljenu ivicu. */
+.trake{ display:none }
+
+.zum{ margin-top:16px }
+.zum__red{ display:flex; align-items:center; gap:10px }
+.zum__oznaka{ font-size:12.5px; font-weight:700; color:var(--mastilo-blago); flex:none }
+.zum__red input[type="range"]{ flex:1; accent-color:var(--crvena); min-width:0 }
+.zum[hidden]{ display:none }
+.solja[data-proizvod="flasica"] .natpis--slika{
+  mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 5,9 Q 59,6 113,9 L 113,83 Q 59,86 5,83 Z%22/%3E%3C/svg%3E');
+  -webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 5,9 Q 59,6 113,9 L 113,83 Q 59,86 5,83 Z%22/%3E%3C/svg%3E');
+}
+/* flašica ostaje kao originalna fotografija (sa svojom roze pozadinom i
+   senkom), pa joj dodatna CSS senka ispod kartice više ne treba */
+.scena:has(.solja[data-proizvod="flasica"])::after{ display:none }
+/* Kadar je uzak i visok; bez ovoga bi pregled tumblera bio dvostruko visi od
+   pregleda solje i progutao celu stranu. */
+.scena:has(.solja[data-proizvod="flasica"]){ max-width:230px }
+.solja[data-proizvod="flasica"] .solja__foto{ border-radius:20px }
+
+/* ============================================================
+   LIMENKA — isti .solja/.natpis okvir, treća fotografija.
+   ============================================================ */
+.solja[data-proizvod="limenka"] .natpis{
+  left:50%; top:52%; width:58%; translate:-50% -50%;
+}
+.solja[data-proizvod="limenka"] .natpis__unutra{ transform:none }
+.solja[data-proizvod="limenka"] .natpis--slika{
+  mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M -8,20 Q 52,32 112,20 L 112,84 Q 52,91 -8,84 Z%22/%3E%3C/svg%3E');
+  -webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M -8,20 Q 52,32 112,20 L 112,84 Q 52,91 -8,84 Z%22/%3E%3C/svg%3E');
+}
+.scena:has(.solja[data-proizvod="limenka"])::after{ display:none }
+.scena:has(.solja[data-proizvod="limenka"]){ max-width:250px }
+.solja[data-proizvod="limenka"] .solja__foto{ border-radius:20px }
+
+/* ============================================================
+   ŠOLJICA SA POKLOPCEM (pluta) — isti okvir, četvrta fotografija.
+   ============================================================ */
+.solja[data-proizvod="pluta"] .natpis{
+  left:32%; top:48%; width:42%; translate:-50% -50%;
+}
+.solja[data-proizvod="pluta"] .natpis__unutra{ transform:none }
+.solja[data-proizvod="pluta"] .natpis__red{ --uvecanje:.62 }
+.solja[data-proizvod="pluta"] .natpis--prazan .natpis__red{ font-size:clamp(14px,5.6cqw,26px) !important }
+.solja[data-proizvod="pluta"] .natpis--slika{
+  mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 62,14 Q 92,22 122,14 L 122,78 Q 92,85 62,78 Z%22/%3E%3C/svg%3E');
+  -webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 62,14 Q 92,22 122,14 L 122,78 Q 92,85 62,78 Z%22/%3E%3C/svg%3E');
+}
+.scena:has(.solja[data-proizvod="pluta"])::after{ display:none }
+.solja[data-proizvod="pluta"] .solja__foto{ border-radius:20px }
+
+/* ============================================================
+   FLAŠICA (boca) — isti okvir, peta fotografija.
+   ============================================================ */
+.solja[data-proizvod="boca"] .natpis{
+  left:50%; top:65%; width:58%; translate:-50% -50%;
+}
+.solja[data-proizvod="boca"] .natpis__unutra{ transform:none }
+.solja[data-proizvod="boca"] .natpis--prazan .natpis__red{ font-size:clamp(18px,8cqw,32px) !important }
+.solja[data-proizvod="boca"] .natpis--slika{
+  mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 2,24 Q 50,16 98,24 L 98,96 Q 50,100 2,96 Z%22/%3E%3C/svg%3E');
+  -webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22%23fff%22 d=%22M 2,24 Q 50,16 98,24 L 98,96 Q 50,100 2,96 Z%22/%3E%3C/svg%3E');
+}
+.scena:has(.solja[data-proizvod="boca"])::after{ display:none }
+.scena:has(.solja[data-proizvod="boca"]){ max-width:230px }
+.solja[data-proizvod="boca"] .solja__foto{ border-radius:20px }
+
+/* ---- izbor proizvoda / načina personalizacije — koristi .prekidac dugmad ---- */
+.otpremi{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; cursor:pointer;
+  border:1.5px dashed var(--ivica); border-radius:var(--r-m); background:var(--krem);
+  padding:16px 18px; transition:border-color .18s;
+}
+.otpremi:hover{ border-color:var(--roze-duboka) }
+.otpremi:has(input[aria-invalid="true"]){ border-color:var(--crvena); background:#FFF5F7 }
+.otpremi__dugme{
+  font-family:var(--naslovi); font-weight:800; font-size:14px; color:#fff;
+  background:var(--crvena); padding:11px 20px; border-radius:999px; white-space:nowrap;
+}
+.otpremi__ime{ font-size:13.5px; font-weight:600; color:var(--mastilo-blago); word-break:break-all }
+.otpremi__mini{
+  width:54px; height:54px; flex:none; object-fit:cover;
+  border-radius:10px; border:1.5px solid var(--ivica); background:var(--belo);
+}
+#slikaUkloni{ margin-top:12px }
+
+/* ============================================================
+   TRAKA SA REČENICAMA
+   ============================================================ */
+.traka{
+  position:relative; z-index:3; overflow:hidden;
+  background:var(--roze); border-block:1.5px solid var(--roze-jaka);
+  padding:16px 0;
+}
+.traka__staza{ display:flex; width:max-content; animation:klizi 48s linear infinite }
+.traka:hover .traka__staza{ animation-play-state:paused }
+@keyframes klizi{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+.traka__stavka{
+  display:inline-flex; align-items:center; gap:24px; padding-right:24px;
+  font-family:var(--naslovi); font-weight:700; font-size:21px; color:var(--crvena-mrak);
+  text-transform:uppercase; white-space:nowrap;
+}
+.traka__stavka svg{ width:25px; height:25px; flex:none }
+
+/* ============================================================
+   IZLOG — „Najtraženije": uramljena fotografija levo, spisak desno.
+   Ram je dvostruk kao na referenci: spolja boja proizvoda, unutra krem.
+   Boja spoljnog rama dolazi iz --ram, koju JS menja uz svaku stavku.
+   ============================================================ */
+.izlog{
+  /* boju rama JS uzima iz pozadine same fotografije, pa se ram i slika stapaju */
+  --ram:#D3707C;
+  /* minmax(0,…) umesto 1fr — bez toga kolona ne sme da se skupi ispod širine
+     fotografije, pa kartica na telefonu izađe iz ekrana */
+  display:grid; grid-template-columns:minmax(0,1fr); gap:22px; align-items:center;
+  margin-top:18px;
+}
+@media (min-width:760px){
+  .izlog{ grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:34px }
+}
+
+.izlog__ram{
+  display:block; padding:7px; border-radius:22px; max-width:400px; width:100%;
+  background:var(--ram); text-decoration:none;
+  transition:background .45s ease, transform .2s cubic-bezier(.2,.9,.3,1.3);
+}
+.izlog__ram:hover{ transform:translateY(-3px) }
+/* Donji pojas je siri: u njemu stoji cena, ispod fotografije umesto preko
+   nje — proizvod se vidi ceo. */
+.izlog__unutra{
+  position:relative; display:block; padding:12px 12px 52px; border-radius:18px;
+  background:var(--brend-krem);
+}
+/* height:auto mora izricito — atribut height="600" na <img> se preslikava u
+   visinu, a izricita visina pobedjuje aspect-ratio, pa bi slika bila izduzena. */
+.izlog__foto{
+  display:block; width:100%; height:auto; aspect-ratio:1/1; object-fit:cover;
+  border-radius:12px;
+  transition:opacity .3s ease;
+}
+/* JS na tren spusti neprozirnost dok menja izvor slike — bez toga bi
+   nova fotografija „upala" naglo. */
+.izlog--menja .izlog__foto{ opacity:0 }
+.izlog__cena{
+  position:absolute; left:50%; bottom:11px; transform:translateX(-50%);
+  background:#FFD98A; color:#8A4416;
+  font-family:var(--naslovi); font-weight:800; font-style:italic;
+  font-size:1.05rem; white-space:nowrap;
+  padding:6px 20px; border-radius:999px;
+  box-shadow:0 3px 0 rgba(138,68,22,.22);
+}
+.izlog__cena::after{
+  content:" + 600 din dostava"; font-size:.55em; font-weight:700;
+}
+
+/* Naslovi i opis idu levo poravnati — desno poravnanje je lomilo opis u
+   nepravilne redove i teže se čita. */
+/* Desna kolona opisuje SAMO fotografiju koja je trenutno prikazana —
+   nema spiska ostalih naziva. Tačkice ispod služe za prelazak. */
+.izlog__desno{ display:flex; flex-direction:column; align-items:flex-start; gap:10px }
+
+.izlog__oznaka{
+  display:inline-block; margin:0;
+  background:var(--ram); color:#4A2C2A;
+  font-family:var(--naslovi); font-weight:800; font-size:.72rem;
+  letter-spacing:.06em; text-transform:uppercase;
+  padding:5px 13px; border-radius:999px;
+  transition:background .45s ease;
+}
+.izlog__ime{
+  margin:0; font-family:var(--naslovi); font-weight:800;
+  font-size:clamp(1.55rem, 1.2rem + 1.5vw, 2.35rem); line-height:1.12;
+  color:var(--brend-crvena);
+}
+.izlog__opis{
+  color:var(--mastilo-blago); font-size:1rem; font-weight:500;
+  max-width:36ch; margin:0; min-height:2.9em;
+}
+.izlog .dugme{ margin-top:4px }
+
+.izlog__tacke{ display:flex; flex-wrap:wrap; gap:9px; margin-top:14px }
+.izlog__tacka{
+  display:block; padding:5px 3px; line-height:0; text-decoration:none;
+}
+.izlog__tacka span{
+  display:block; width:9px; height:9px; border-radius:999px;
+  background:var(--brend-roze-blaga);
+  transition:background .2s ease, width .2s ease;
+}
+.izlog__tacka:hover span{ background:var(--brend-roze) }
+/* tekuca tackica se izduzi u crticu — vidi se i bez oslanjanja na boju */
+.izlog__tacka--tekuca span{ width:26px; background:var(--brend-crvena) }
+
+@media (prefers-reduced-motion:reduce){
+  .izlog__ram, .izlog__foto, .izlog__stavka{ transition:none }
+}
+
+/* ============================================================
+   BIRAC VRSTA (gotovi.html) — prvo se bira vrsta proizvoda, kao ikonice
+   na naslovnoj; tek posle toga se otvore teme i sami proizvodi.
+   Boje su iste kao kod .ikonica, samo su plocice krupnije.
+   ============================================================ */
+.vrste{
+  display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+  margin:26px 0 8px;
+}
+/* izricit display pobedjuje atribut hidden, pa mora ovako */
+.vrste[hidden], #vrsteUvod[hidden]{ display:none }
+@media (min-width:560px){ .vrste{ grid-template-columns:repeat(3,1fr); gap:14px } }
+@media (min-width:900px){ .vrste{ grid-template-columns:repeat(4,1fr); gap:16px } }
+
+.vrsta{
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  padding:22px 10px 18px; border-radius:20px; cursor:pointer;
+  font:inherit; text-align:center;
+  background:var(--tlo, #fff); border:2px solid var(--ivica, #F3E2D0);
+  transition:transform .16s cubic-bezier(.2,.9,.3,1.3), box-shadow .16s ease;
+}
+.vrsta:hover, .vrsta:focus-visible{
+  transform:translateY(-4px);
+  box-shadow:0 12px 22px -14px rgba(142,33,25,.5);
+}
+.vrsta svg{ width:52px; height:52px; display:block }
+@media (min-width:560px){ .vrsta svg{ width:62px; height:62px } }
+.vrsta__ime{
+  font-family:var(--naslovi); font-weight:800; font-size:.95rem;
+  color:var(--slovo, var(--brend-crvena)); line-height:1.2;
+}
+
+.vrsta-red{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:24px 0 4px;
+}
+.nazad{
+  font:inherit; cursor:pointer;
+  font-family:var(--naslovi); font-weight:800; font-size:.88rem;
+  color:var(--brend-crvena); background:#fff;
+  border:2px solid var(--brend-crvena); border-radius:999px;
+  padding:9px 18px;
+  transition:background .16s ease, color .16s ease, transform .16s ease;
+}
+.nazad:hover, .nazad:focus-visible{
+  background:var(--brend-crvena); color:#fff; transform:translateY(-2px);
+}
+.vrsta-red__ime{
+  margin:0; font-family:var(--naslovi); font-weight:800;
+  font-size:clamp(1.3rem, 1.1rem + .8vw, 1.8rem);
+  color:var(--brend-crvena);
+}
+
+/* ============================================================
+   KARTICE
+   ============================================================ */
+/* Kartica nema svoju kutiju — stoji direktno na podlozi strane. Vidljivo je
+   samo obojeno polje sa fotografijom, a ispod njega red sa nazivom i cenom.
+   Tako mreža proizvoda izgleda kao na Tijaninoj referenci. */
+.karta{
+  background:transparent; border:0; border-radius:0; box-shadow:none;
+  overflow:visible;
+  transition:transform .22s cubic-bezier(.2,.9,.3,1.25);
+}
+.karta:hover{ transform:translateY(-5px) }
+@media (hover:none){ .karta:hover{ transform:none } }
+
+.koraci{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:46px; text-align:left }
+/* 3 kolone na monitoru → 2 na tabletu → 1 na telefonu */
+@media (max-width:1023px){ .koraci{ grid-template-columns:1fr 1fr; gap:18px } }
+@media (max-width:640px){ .koraci{ grid-template-columns:1fr } }
+/* .karta je za katalog obesmišljena (bez podloge i ivice) — koraci moraju
+   da vrate svoju kutiju, inače tekst visi na goloj pozadini. */
+.korak-karta{
+  padding:32px 28px 30px;
+  background:#fff; border:2px solid var(--brend-roze-blaga);
+  border-radius:30px 12px 30px 12px;
+  box-shadow:0 14px 30px -20px rgba(142,33,25,.45);
+}
+.korak-karta:nth-child(even){ border-radius:12px 30px 12px 30px }
+.karta.korak-karta:hover{ transform:translateY(-5px) }
+.korak-karta__broj{
+  width:54px; height:54px; margin-bottom:20px; border-radius:18px; rotate:-4deg;
+  display:grid; place-items:center; box-shadow:var(--senka-s);
+  font-family:var(--naslovi); font-weight:800; font-size:25px; color:var(--crvena-mrak);
+}
+/* koraci nose istu roze lestvicu kao završni poziv */
+.koraci-strana .naslov{ color:var(--crvena-mrak) }
+/* tri koraka, tri različite boje — bento-kartice sa moodborda, ne
+   jednolično roze kao ranije */
+/* tri koraka u istoj porodici boja kao naslovna: svetlo roze → roze → crvena */
+.korak-karta:nth-child(1) .korak-karta__broj{ background:var(--brend-roze-blaga); color:var(--brend-crvena) }
+.korak-karta:nth-child(2) .korak-karta__broj{ background:var(--brend-roze); color:#fff }
+.korak-karta:nth-child(3) .korak-karta__broj{ background:var(--brend-crvena); color:#fff }
+.korak-karta h3{ font-size:23px }
+.korak-karta p{ margin-top:10px; color:var(--mastilo-blago); font-size:15.5px }
+
+/* ============================================================
+   KONFIGURATOR
+   ============================================================ */
+/* prvi, samostalni korak — bira se šoljica ili flašica pre nego što se
+   uopšte pojavi ostatak konfiguratora ispod (isti .tile kao na naslovnoj) */
+/* .grid postaje display:flex na širim ekranima (za naslovnu, gde dve kartice
+   slobodno prelamaju), ali ovde želimo da šoljica i flašica UVEK stoje jedna
+   pored druge — zato sopstveni grid sa dve kolone, nezavisan od te širine. */
+.izbor-proizvoda.grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); max-width:520px; margin:36px auto 0; gap:14px }
+.izbor-proizvoda .tile{ cursor:pointer; transition:transform .18s cubic-bezier(.2,.9,.3,1.25), border-color .18s ease }
+.izbor-proizvoda .tile:hover{ transform:translateY(-4px) }
+/* Izabrano se više ne označava crvenom ivicom (to je opet ram) nego
+   kvačicom u uglu i time što pločica ostane podignuta. */
+.izbor-proizvoda .tile{ position:relative }
+.izbor-proizvoda .tile--izabran{ transform:translateY(-4px) }
+.izbor-proizvoda .tile--izabran::after{
+  content:"¹3"; position:absolute; top:10px; right:10px; z-index:2;
+  width:26px; height:26px; display:grid; place-items:center;
+  background:var(--brend-crvena); color:#fff;
+  font-size:14px; font-weight:800; line-height:1;
+  border-radius:999px; box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+
+@media (max-width:420px){
+  .izbor-proizvoda.grid{ max-width:300px; gap:10px }
+  .izbor-proizvoda .tile-img{ height:110px; padding:14px }
+}
+
+.konfig__red[hidden]{ display:none }
+.konfig__red{ display:grid; grid-template-columns:.92fr 1.08fr; gap:56px; align-items:start; margin-top:46px }
+/* Na tabletu (768) ima mesta za pregled + formu jedno pored drugog — na
+   jednu kolonu se prelazi tek ispod 720px. */
+@media (min-width:720px) and (max-width:960px){ .konfig__red{ gap:30px } }
+@media (max-width:719px){ .konfig__red{ grid-template-columns:1fr; gap:40px } }
+
+/* Bez ikakvog okvira: proizvod stoji slobodno na strani. Jedino što ga
+   odvaja od teksta je isprekidana crta iznad cene. */
+.pregled{
+  position:sticky; top:106px; padding:0;
+  background:transparent; border:0; border-radius:0; box-shadow:none;
+}
+/* Fotografije koje imaju svoju punu pozadinu (tumbler) bi kao oštar
+   pravougaonik delovale kao još jedan ram — zato blago zaobljeni uglovi. */
+.solja__foto{ border-radius:22px }
+.solja[data-proizvod="solja"] .solja__foto{ border-radius:0 }
+@media (max-width:719px){ .pregled{ position:static } }
+.pregled__cena{
+  margin-top:34px; padding-top:22px; border-top:1.5px dashed var(--ivica);
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+}
+.pregled__iznos{ font-family:var(--naslovi); font-weight:800; font-size:32px; color:var(--crvena); line-height:1 }
+.pregled__iznos::after{ content:" + dostava"; font-family:var(--tekst); font-size:.4em; font-weight:700; color:var(--mastilo-blago) }
+.pregled__iznos--upit::after{ content:"" }
+.pregled__opis{ font-size:13.5px; font-weight:600; color:var(--mastilo-blago); text-align:right; line-height:1.45 }
+
+.korak{ padding:30px 0; border-bottom:1.5px dashed var(--ivica) }
+.korak[hidden]{ display:none }
+.korak:first-child{ padding-top:0 }
+.korak:last-of-type{ border-bottom:0 }
+.korak__glava{ display:flex; align-items:center; gap:13px; margin-bottom:7px }
+.korak__broj{
+  font-family:var(--naslovi); font-weight:800; font-size:16px; color:var(--crvena-mrak);
+  background:var(--roze); width:34px; height:34px; border-radius:12px; rotate:-4deg;
+  display:grid; place-items:center; flex:none;
+}
+.korak__ime{ font-size:24px }
+.korak__napomena{ font-size:15px; color:var(--mastilo-blago); margin:0 0 16px }
+
+textarea.polje{
+  width:100%; font-family:var(--tekst); font-size:17px; font-weight:600; color:var(--mastilo);
+  padding:16px 19px; border:1.5px solid var(--ivica); border-radius:var(--r-m);
+  background:var(--belo); resize:none; line-height:1.55; box-shadow:var(--senka-s);
+  transition:border-color .18s, box-shadow .18s;
+}
+textarea.polje::placeholder{ color:#C3AEB8 }
+textarea.polje:focus{ outline:none; border-color:var(--crvena); box-shadow:0 0 0 4px var(--roze) }
+
+.cipovi{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px }
+.cip{
+  font-family:var(--tekst); font-size:13.5px; font-weight:700; color:var(--mastilo-blago);
+  background:#fff; border:1.5px solid var(--brend-roze-blaga); border-radius:999px;
+  padding:9px 16px; cursor:pointer; transition:all .18s cubic-bezier(.2,.9,.3,1.25);
+}
+.cip:hover{ border-color:var(--brend-crvena); color:var(--brend-crvena); transform:translateY(-2px) }
+
+.izbor{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px }
+@media (max-width:520px){ .izbor{ grid-template-columns:1fr } }
+.izbor__stavka{
+  border:1.5px solid var(--ivica); border-radius:var(--r-m); background:var(--belo);
+  padding:20px 12px; cursor:pointer; text-align:center;
+  transition:all .18s cubic-bezier(.2,.9,.3,1.25);
+}
+.izbor__stavka:hover{ border-color:var(--roze-duboka); transform:translateY(-3px); box-shadow:var(--senka-s) }
+.izbor__stavka[aria-pressed="true"]{ border-color:var(--crvena); box-shadow:0 0 0 3.5px var(--roze) }
+.izbor__uzorak{ font-size:25px; line-height:1.05; text-transform:uppercase; color:var(--mastilo) }
+.izbor__uzorak--debela{ font-family:var(--naslovi); font-weight:800 }
+.izbor__uzorak--kontura{
+  font-family:var(--naslovi); font-weight:800; color:var(--roze-jaka);
+  text-shadow:-1.4px -1.4px 0 var(--crvena-tamna), 1.4px -1.4px 0 var(--crvena-tamna),
+              -1.4px 1.4px 0 var(--crvena-tamna), 1.4px 1.4px 0 var(--crvena-tamna);
+}
+.izbor__uzorak--marker{ font-family:var(--marker); font-weight:700 }
+.izbor__uzorak--strip{ font-family:var(--strip); font-size:28px; letter-spacing:.022em }
+.izbor__uzorak--masina{ font-family:var(--masina); font-size:15px; letter-spacing:.2em }
+.izbor__uzorak--elegantna{ font-family:var(--elegantna); font-weight:500; letter-spacing:.05em }
+.izbor__uzorak--okrugla{ font-family:var(--okrugla); font-weight:700 }
+.izbor__ime{ margin-top:13px; font-size:14px; font-weight:800 }
+.izbor__pod{ font-size:12.5px; color:var(--mastilo-blago); margin-top:2px }
+
+.tacke{ display:flex; flex-wrap:wrap; gap:12px }
+.tacka{
+  width:48px; height:48px; border-radius:999px; cursor:pointer; padding:0;
+  border:3px solid var(--belo); box-shadow:0 0 0 1.5px var(--ivica), var(--senka-s);
+  transition:transform .18s cubic-bezier(.2,.9,.3,1.4), box-shadow .18s;
+}
+.tacka:hover{ transform:scale(1.12) }
+.tacka[aria-pressed="true"]{ box-shadow:0 0 0 3.5px var(--crvena), var(--senka-s); transform:scale(1.08) }
+
+.prekidac{ display:flex; gap:10px; flex-wrap:wrap }
+.prekidac[hidden]{ display:none }
+.prekidac__dugme{
+  font-family:var(--tekst); font-size:15px; font-weight:800; color:var(--mastilo-blago);
+  background:var(--belo); border:1.5px solid var(--ivica); border-radius:999px;
+  padding:11px 24px; cursor:pointer; transition:all .18s cubic-bezier(.2,.9,.3,1.25);
+}
+.prekidac__dugme:hover{ border-color:var(--roze-duboka); transform:translateY(-2px) }
+.prekidac__dugme[aria-pressed="true"]{ border-color:var(--crvena); color:var(--crvena-tamna); box-shadow:0 0 0 3.5px var(--roze) }
+
+.porudzbina{ padding-top:30px }
+.porudzbina__dugmad{ display:flex; flex-wrap:wrap; gap:12px }
+.porudzbina__pomoc{ margin-top:17px; font-size:15px; color:var(--mastilo-blago) }
+.potvrda{
+  margin-top:15px; display:inline-flex; align-items:center; gap:9px;
+  font-family:var(--naslovi); font-weight:700; font-size:15.5px; color:#5C7038;
+  background:var(--zelena-blaga); border:1.5px solid #DCE6C4; border-radius:999px; padding:9px 20px;
+}
+.potvrda[hidden]{ display:none }
+
+/* ============================================================
+   KATALOG
+   ============================================================ */
+.filteri{
+  margin-top:16px; background:var(--brend-krem); border:1.5px solid #EFD9C9;
+  border-radius:20px; padding:18px 22px; box-shadow:none;
+}
+.filteri__red{ display:flex; align-items:center; gap:14px; flex-wrap:wrap }
+.filteri__red + .filteri__red{ margin-top:13px; padding-top:13px; border-top:1.5px dashed #EAD3C2 }
+.filteri__red[hidden]{ display:none }
+/* .cip je flex/inline-flex, pa mu izričit display nadjačava atribut hidden;
+   #filterTema .cip je još specifičniji, pa mora i taj oblik */
+.cip[hidden], #filterTema .cip[hidden]{ display:none }
+.filteri__ime{
+  font-family:var(--naslovi); font-weight:800; font-size:15px; color:var(--brend-crvena);
+  min-width:52px; flex:none;
+}
+.filteri .cipovi{ margin-top:0 }
+/* izabran čip je pun crveni — isti potez kao dugmad i prekidači drugde */
+.cip[aria-pressed="true"]{ border-color:var(--brend-crvena); color:#fff; background:var(--brend-crvena); box-shadow:none }
+/* Teme kao pločice sa crtežom i nazivom ispod — isti potez kao ikonice vrsta.
+   Važi samo za #filterTema; gotove rečenice u konfiguratoru (.cipovi) i
+   skriveni čipovi vrsta ostaju obične pilule. */
+#filterTema{ gap:10px }
+#filterTema .cip{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  width:92px; padding:11px 6px 9px; border-radius:16px;
+  font-size:11.5px; font-weight:800; line-height:1.2; text-align:center;
+  background:var(--tlo); border-color:var(--ivica); color:var(--slovo);
+}
+/* Iste pastele kao pločice vrsta i redovi u Kategorijama — smenjuju se u krug. */
+#filterTema .cip:nth-child(8n+1){ --tlo:#D6C4EE; --ivica:#B69EDF; --slovo:#4A2C77 }
+#filterTema .cip:nth-child(8n+2){ --tlo:#F8C6D5; --ivica:#EBA0B8; --slovo:#A63527 }
+#filterTema .cip:nth-child(8n+3){ --tlo:#B9E0DC; --ivica:#8FC9C3; --slovo:#1D5A55 }
+#filterTema .cip:nth-child(8n+4){ --tlo:#F7C8A8; --ivica:#E3A47B; --slovo:#8A4416 }
+#filterTema .cip:nth-child(8n+5){ --tlo:#EE9E96; --ivica:#DB7C72; --slovo:#8A2A21 }
+#filterTema .cip:nth-child(8n+6){ --tlo:#CCE1AD; --ivica:#AECA85; --slovo:#3B571A }
+#filterTema .cip:nth-child(8n+7){ --tlo:#FADD94; --ivica:#EEC665; --slovo:#8E3D14 }
+#filterTema .cip:nth-child(8n+8){ --tlo:#C2DBEB; --ivica:#9BC0D7; --slovo:#1C4761 }
+#filterTema .cip:hover{ color:var(--slovo); border-color:var(--ivica) }
+#filterTema .cip svg{ width:34px; height:34px; display:block }
+/* izabrana tema ostaje puna crvena, sa belim crtežom — kao i drugde */
+#filterTema .cip[aria-pressed="true"]{
+  background:var(--brend-crvena); border-color:var(--brend-crvena); color:#fff;
+}
+#filterTema .cip[aria-pressed="true"] svg{ filter:brightness(0) invert(1) }
+@media (max-width:520px){
+  #filterTema .cip{ width:78px; padding:9px 4px 8px; font-size:10.5px }
+  #filterTema .cip svg{ width:29px; height:29px }
+}
+
+.filteri__broj{ margin-top:13px; font-size:13.5px; font-weight:700; color:var(--mastilo-blago) }
+.proizvod[hidden]{ display:none }
+.podnaslov[hidden]{ display:none }
+.prazno-stanje{
+  margin-top:24px; text-align:center; padding:34px 20px; color:var(--brend-crvena);
+  background:var(--brend-krem); border:1.5px solid #EFD9C9;
+  border-radius:20px; font-weight:700;
+}
+
+.podnaslov{
+  font-size:24px; margin-top:44px; color:var(--brend-crvena);
+  display:inline-block; background:var(--brend-krem); border-radius:999px;
+  border:1.5px solid #EFD9C9; padding:8px 22px; box-shadow:none;
+}
+/* auto-fill, ne auto-fit — auto-fit rasteže poslednji "usamljeni" proizvod
+   u redu da popuni ceo red (i onda mu slika postane ogromna, aspect-ratio:1/1
+   je i dalje kvadrat ali kvadrat od 900px). auto-fill ostavlja prazan prostor
+   umesto da rasteže karticu, pa svaka slika ostaje ista veličina kao ostale. */
+/* Mreža, ali sa `align-items:start` — kartice nisu razvučene na istu visinu,
+   nego svaka stane onoliko koliko joj treba. Zato fotografija može da zadrži
+   svoj oblik: vidi se cela i ispunjava svoj pravougaonik, bez sečenja i bez
+   traka sa strane. */
+.katalog{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr));
+  gap:26px 22px; align-items:start; margin-top:22px;
+}
+.proizvod .karta__telo{ align-items:flex-start }
+.proizvod .naruci{ margin-top:6px }
+/* Fotografije su snimane u raznim razmerama — uspravne, položene i kvadratne.
+   Zato se svaka prikazuje CELA (contain) na istoj svetloj podlozi: ništa se ne
+   seče, a red i dalje izgleda ujednačeno jer je okvir uvek kvadrat.
+   Na prelaz mišem slika se blago uveća unutar okvira. */
+/* STROGO ujednačen okvir: kvadrat 1/1, puna širina, BEZ padinga i margina —
+   fotografija naleže tačno na gornju zaobljenu ivicu kartice.
+   Ranije je padding uvlačio sliku, pa se unutar zaobljenog roze okvira video
+   pravougaonik sa OŠTRIM uglovima; zato se činilo da uglovi nisu zaobljeni.
+   Radius se duplira i na <img> (ista vrednost kao .karta) da nijedan pregledač
+   ne iscrta oštar ugao preko zaobljene bele kartice. */
+/* Bez unutrašnjeg razmaka: fotografija ide do same ivice polja. Razmak je
+   ranije pravio vidljiv pravougaonik unutar polja, koji se kod nekih slika
+   video a kod nekih nije — otud utisak da su ramovi različiti. */
+.karta__slika{
+  width:100%; overflow:hidden; position:relative;
+  display:block; background:var(--polje, var(--brend-krem));
+  padding:0; margin:0;
+  border:0;
+  border-radius:16px;
+}
+/* --polje se upisuje uz svaku karticu u HTML-u, a vrednost je uzeta iz same
+   fotografije (medijana njenih ivičnih piksela). Tako se pravougaonik slike
+   stapa sa poljem i nema sudara dve različite pozadine. Mreža je i dalje
+   šarena — ali bojama samih proizvoda. */
+/* contain, ne cover — proizvod se uvek vidi ceo. Okvir ostaje isti kvadrat
+   1/1 pa mreža stoji ujednačeno; gde fotografija nije kvadratna, oko nje
+   ostane zaobljena roze podloga umesto da se šolja odseče. */
+/* Isti radijus kao polje — tamo gde fotografija ispuni ugao, zaobljenje se
+   poklapa umesto da se vide dva različita luka. */
+/* Slika sama određuje visinu polja — vidi se cela i ispunjava ga do ivice. */
+.karta__slika img{
+  width:100%; height:auto;
+  object-fit:fill;
+  display:block; margin:0;
+  border-radius:16px; position:relative; z-index:1;
+  transition:transform .45s cubic-bezier(.2,.7,.3,1);
+}
+.karta:hover .karta__slika img{ transform:scale(1.08) }
+@media (hover:none){ .karta:hover .karta__slika img{ transform:none } }
+/* Izuzetak za vrlo izdužene fotografije (cegeri, red flašica): cover bi im
+   pojeo i preko 50% proizvoda, pa one idu contain. Okvir ostaje ISTI kvadrat
+   1/1 bez padinga, pa mreža i dalje stoji savršeno ujednačeno — menja se samo
+   način na koji se fotografija uklapa u taj okvir. Uglovi ostaju zaobljeni
+   jer <img> zadržava svoj border-radius, a prazan prostor popunjava
+   zaobljena roze podloga okvira. */
+/* .karta__slika--ceger i --cela više ne trebaju: sve kartice imaju isti
+   okvir bez razmaka i isti način uklapanja. */
+.karta__telo{ padding:11px 3px 0; display:flex; flex-direction:column; gap:3px; flex:1 }
+.karta__red{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px }
+.karta__ime{
+  font-family:var(--naslovi); font-weight:800; font-size:16px; margin:0;
+  color:var(--brend-crvena); line-height:1.25;
+}
+.karta__cena{ white-space:nowrap }
+.karta__opis{ font-size:12.5px; color:var(--mastilo-blago); line-height:1.4 }
+/* Izuzetak: jedina kartica koja još nosi opis — objasnjava kako se prave
+   dečije šolje sa svojim crtežom, pa je namerno malo istaknutija. */
+.karta__opis--napomena{ font-style:italic; color:var(--brend-crvena) }
+
+/* Deljena napomena iznad kataloga — pokazuje se samo dok je tema „Za decu“
+   izabrana, umesto da visi ispod jedne kartice kao da važi samo za nju. */
+.napomena-tema{
+  display:flex; align-items:center; gap:12px;
+  margin-top:20px; padding:14px 20px;
+  background:var(--brend-krem); border:1.5px solid #EFD9C9; border-radius:16px;
+  font-weight:700; color:var(--brend-crvena); font-size:14px; line-height:1.4;
+}
+.napomena-tema svg{ width:30px; height:30px; flex:none }
+.napomena-tema[hidden]{ display:none }
+/* cena stoji u istom redu sa nazivom, istim slovima — kao na referenci */
+/* "+ dostava" pored svake fiksne cene — proizvodi "na upit" (data-upit) je nemaju,
+   jer se dostava tamo dogovara zajedno sa ostatkom porudžbine. */
+.proizvod:not([data-upit="da"]) .karta__cena::after{
+  content:" + 600 din dostava"; font-family:var(--tekst); font-size:.5em; font-weight:700; color:var(--mastilo-blago);
+}
+
+.karta__oznaka{
+  position:absolute; z-index:2; top:14px; right:14px; rotate:3deg;
+  font-family:var(--naslovi); font-size:13px; font-weight:800;
+  text-transform:uppercase; background:var(--belo); color:var(--crvena-tamna);
+  padding:6px 15px; border-radius:999px; box-shadow:var(--senka-s);
+}
+/* rasprodato — prigušena siva, da se razlikuje od „Uskoro" koje je najava */
+.karta__oznaka--nema{ color:#6E6A6C; background:#F2EDF0 }
+
+/* bez height:100% — kartice se u redu rastežu, pa bi slikovni deo pojeo ceo okvir */
+.karta__bedz{ display:grid; place-items:center; background:var(--roze-blaga) }
+.karta__bedz svg{ width:40%; max-width:120px; height:auto; display:block }
+
+/* ============================================================
+   PORUČIVANJE — prozor sa izborom i podacima
+   ============================================================ */
+/* spec vise nije pilula — sitan sivi red ispod opisa, kao na referenci */
+.karta__spec{
+  font-size:11.5px; font-weight:600; color:var(--mastilo-blago);
+  background:none; border-radius:0; padding:0;
+  display:block; opacity:.8;
+}
+.karta__uskoro{ font-family:var(--naslovi); font-weight:800; font-size:16px; color:var(--mastilo-blago) }
+
+.modal{ position:fixed; inset:0; z-index:200; display:grid; place-items:center; padding:20px }
+.modal[hidden]{ display:none }
+.modal__pozadina{ position:absolute; inset:0; background:rgba(51,33,44,.55); backdrop-filter:blur(3px) }
+.modal__okvir{
+  position:relative; z-index:2; width:min(560px, 100%); max-height:90vh; overflow:auto;
+  background:var(--belo); border-radius:var(--r-xl); padding:26px 28px 26px; box-shadow:var(--senka-l);
+}
+@media (max-width:560px){ .modal__okvir{ padding:22px 18px 20px } }
+.modal__logo{ display:flex; justify-content:center; margin-bottom:9px }
+.modal__logo img{ height:30px; width:auto }
+/* Okvir se skuplja na širinu same fotografije (width:fit-content + img sa
+   width:auto), umesto da se razvuče preko celog prozora — ranije je uspravna
+   slika stajala sitna na sredini, sa širokim praznim roze pojasom levo i desno. */
+.modal__slika{
+  margin:12px auto 0; border-radius:14px; overflow:hidden; background:var(--roze-blaga);
+  height:215px; width:fit-content; max-width:100%;
+  /* dok se slika ne učita, width:auto bi skupio okvir na golu prugu od 14px —
+     min-width drži pristojan oblik do trenutka kad slika stigne */
+  min-width:150px;
+  display:flex; align-items:center; justify-content:center; padding:7px;
+}
+/* Uspravni proizvodi na 300px izlaze viši od 215px okvira, pa ih overflow:hidden
+   iseče. Širina po proizvodu je izračunata iz odnosa stranica fotografije tako
+   da ceo proizvod stane u visinu okvira. */
+.modal__pregled:has(.solja[data-proizvod="solja"]){ width:285px }
+.modal__pregled:has(.solja[data-proizvod="flasica"]){ width:70px }
+.modal__pregled:has(.solja[data-proizvod="limenka"]){ width:104px }
+.modal__pregled:has(.solja[data-proizvod="pluta"]){ width:176px }
+.modal__pregled:has(.solja[data-proizvod="boca"]){ width:68px }
+.modal__slika img{
+  height:100%; width:auto; max-width:100%; object-fit:contain;
+  display:block; border-radius:9px;
+}
+.modal__slika img[hidden]{ display:none }
+/* klonirani pregled iz konfiguratora — ista šolja sa natpisom koji je kupac
+   upravo sastavio. Širina je fiksna da container-query jedinice u .natpis
+   dobiju stabilnu osnovu, pa slova ostanu u istom odnosu kao u pregledu. */
+.modal__pregled{ width:300px; max-width:100%; margin:0; position:relative }
+.modal__pregled::after{ display:none }
+.modal__x{
+  position:absolute; top:14px; right:16px; width:38px; height:38px; border-radius:999px;
+  border:1.5px solid var(--ivica); background:var(--belo); cursor:pointer;
+  font-size:22px; line-height:1; color:var(--mastilo-blago);
+}
+.modal__x:hover{ border-color:var(--crvena); color:var(--crvena) }
+.modal__ime{ font-size:22px; margin:0; line-height:1.15 }
+.modal__cena{ font-family:var(--naslovi); font-weight:800; font-size:20px; color:var(--crvena); margin-top:4px }
+.modal__spec{ font-size:13px; color:var(--mastilo-blago); margin-top:3px }
+
+/* ============================================================
+   RAYO PANEL — red opcija: naslov levo, strelice desno,
+   ispod traka koja se pomera vodoravno.
+   ============================================================ */
+/* min-width:0 kroz ceo lanac — bez toga grid/flex roditelj dozvoli detetu
+   da naraste do širine sadržaja, pa traka nikad ne "preliva" i strelice
+   se ne pojave. */
+.konfig__red, .konfig__red > *, .korak, .rayo{ min-width:0 }
+.rayo{
+  margin-top:16px; padding:16px 16px 18px;
+  background:var(--brend-krem);
+  border:1.5px solid #EFD9C9;
+  border-radius:20px;
+}
+.rayo__glava{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px }
+.rayo__ime{
+  font-family:var(--naslovi); font-weight:800; font-size:17px;
+  color:var(--brend-crvena); margin:0;
+}
+.rayo__strelice{ display:flex; gap:8px; flex:none }
+/* Strelice se sakriju kad se cela traka ionako vidi — JS postavlja
+   data-preliva na .rayo tek ako sadržaj izlazi iz okvira. */
+.rayo:not([data-preliva]) .rayo__strelice{ display:none }
+.rayo__str{
+  width:38px; height:26px; display:inline-flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--brend-crvena); background:transparent; color:var(--brend-crvena);
+  border-radius:999px; cursor:pointer; padding:0;
+  transition:background .16s ease, color .16s ease, transform .16s ease;
+}
+.rayo__str svg{ width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round }
+.rayo__str:hover{ background:#FBE3DF }
+.rayo__str--puna{ background:var(--brend-crvena); color:#fff }
+.rayo__str--puna:hover{ background:var(--brend-crvena-svetla) }
+.rayo__str:disabled{ opacity:.32; cursor:default }
+.rayo__str:disabled:hover{ background:transparent }
+.rayo__str--puna:disabled:hover{ background:var(--brend-crvena) }
+
+.rayo__traka{
+  overflow-x:auto; overflow-y:hidden;
+  scroll-behavior:smooth; scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none; padding-bottom:2px;
+}
+.rayo__traka::-webkit-scrollbar{ display:none }
+/* Deca panela (.izbor, .tacke, .prekidac) prelaze iz mreže/wrapa u
+   jedan red koji se pomera; zato flex + nowrap i flex:none na stavkama. */
+.rayo__traka > .izbor,
+.rayo__traka > .tacke,
+.rayo__traka > .prekidac{
+  display:flex; flex-wrap:nowrap; gap:12px; width:max-content; min-width:100%;
+}
+.rayo__traka .izbor__stavka,
+.rayo__traka .tacka,
+.rayo__traka .prekidac__dugme{ flex:none; scroll-snap-align:start }
+.rayo__traka .izbor__stavka{ width:120px }
+
+/* Izabrano = puno crveno polje, kao izabrani stočić na Tijaninom primeru. */
+.rayo__traka .izbor__stavka[aria-pressed="true"],
+.rayo__traka .prekidac__dugme[aria-pressed="true"]{
+  background:var(--brend-crvena); border-color:var(--brend-crvena);
+  color:#fff; box-shadow:none;
+}
+.rayo__traka .izbor__stavka[aria-pressed="true"] .izbor__uzorak,
+.rayo__traka .izbor__stavka[aria-pressed="true"] .izbor__ime,
+.rayo__traka .izbor__stavka[aria-pressed="true"] .izbor__pod{ color:#fff }
+/* Tačkica je sama boja, pa ne može da se popuni — dobija crveni prsten. */
+.rayo__traka .tacka[aria-pressed="true"]{
+  box-shadow:0 0 0 3px var(--brend-krem), 0 0 0 6px var(--brend-crvena);
+  transform:scale(1.06);
+}
+@media (max-width:560px){
+  .rayo{ padding:14px 13px 16px }
+  .rayo__traka .izbor__stavka{ width:108px }
+}
+
+.grupa{ margin-top:16px }
+.grupa__ime{ font-family:var(--naslovi); font-weight:800; font-size:16px; margin-bottom:7px }
+.grupa__ime .obavezno{ font-size:15px }
+
+.polja{ display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; margin-top:16px }
+@media (max-width:520px){ .polja{ grid-template-columns:1fr } }
+.polja label{ display:flex; flex-direction:column; gap:4px; font-size:13px; font-weight:800 }
+/* naziv i pripis moraju u isti red — label je flex kolona, pa bi inače
+   pripis pao ispod naziva */
+.polja__ime{ display:block }
+/* zvezdica umesto reči „obavezno" — značenje piše jednom, u legendi na dnu */
+.obavezno{
+  font-family:var(--tekst); font-weight:800; font-size:15px; line-height:1;
+  color:var(--brend-crvena); margin-left:3px; vertical-align:-1px;
+}
+.polja__legenda{
+  grid-column:1 / -1; margin-top:2px;
+  font-size:12px; font-weight:700; color:var(--mastilo-blago);
+}
+.polja__legenda .obavezno{ margin-left:0 }
+.polja label.puno, .polja div.puno, .polja p.puno{ grid-column:1 / -1 }
+.polja__napomena-licno{
+  margin:0; padding:10px 14px; border-radius:12px;
+  background:var(--brend-krem); font-size:12.5px; font-weight:600; color:var(--mastilo-blago);
+}
+.polja label[hidden], .polja p[hidden]{ display:none }
+.polja .otpremi{ margin-top:2px }
+.polja .otpremi__ime{ font-size:13px }
+.polja input, .polja textarea{
+  font-family:var(--tekst); font-size:15.5px; font-weight:600; color:var(--mastilo);
+  padding:10px 14px; border:1.5px solid var(--ivica); border-radius:13px;
+  background:var(--krem); resize:none;
+}
+.polja input:focus, .polja textarea:focus{ outline:none; border-color:var(--crvena); background:#fff; box-shadow:0 0 0 3.5px var(--roze) }
+.polja input[aria-invalid="true"]{ border-color:var(--crvena); background:#FFF5F7 }
+
+.modal__poruka{
+  margin-top:13px; font-size:13.5px; font-weight:700; border-radius:13px; padding:10px 14px;
+}
+.modal__poruka--greska{ background:#FFF0F3; color:var(--crvena-mrak); border:1.5px solid var(--roze-jaka) }
+.modal__poruka--info{ background:var(--zuta-blaga); color:#7A5A12; border:1.5px solid #F0E2BD }
+/* Izbor načina preuzimanja — dve kartice sa radio dugmetom.
+   Ceo <label> je klikabilan, pa je meta velika i na telefonu. */
+.dostava{ display:grid; grid-template-columns:1fr 1fr; gap:10px }
+@media (max-width:520px){ .dostava{ grid-template-columns:1fr } }
+.dostava__opcija{
+  display:flex; align-items:flex-start; gap:9px; cursor:pointer;
+  border:1.5px solid var(--ivica); border-radius:13px; padding:11px 13px;
+  background:var(--krem); transition:border-color .18s, box-shadow .18s, background .18s;
+}
+.dostava__opcija:hover{ border-color:var(--roze-duboka) }
+.dostava__ikona{ width:26px; height:26px; flex:none; margin-top:1px }
+.dostava__opcija input{ margin:2px 0 0; accent-color:var(--crvena); flex:none; width:17px; height:17px }
+.dostava__opcija b{ display:block; font-family:var(--naslovi); font-weight:800; font-size:14.5px; line-height:1.2 }
+.dostava__opcija small{ display:block; font-size:12px; color:var(--mastilo-blago); margin-top:2px; line-height:1.3 }
+/* Izabrana opcija se označava blagom podlogom, ne debelim crvenim ramom. */
+.dostava__opcija:has(input:checked){
+  border-color:var(--brend-roze-blaga); background:#FFF0F4; box-shadow:none;
+}
+.dostava__opcija:has(input:focus-visible){ outline:3px solid var(--crvena); outline-offset:2px }
+
+.modal__dugmad{ margin-top:18px; display:flex; flex-wrap:wrap; gap:10px }
+
+.hvala{ text-align:center; padding:14px 0 6px }
+.hvala__znak{ width:96px; margin:0 auto 18px }
+.hvala h3{ font-size:29px; color:var(--crvena-mrak) }
+.hvala p{ margin-top:12px; color:var(--mastilo-blago) }
+.hvala__sazetak{
+  margin-top:20px; text-align:left; background:var(--roze-blaga); border-radius:var(--r-m);
+  padding:16px 18px; font-size:14.5px; white-space:pre-wrap; line-height:1.6;
+}
+@keyframes hvalaUlaz{ from{ opacity:0; transform:translateY(12px) scale(.96) } to{ opacity:1; transform:none } }
+.hvala{ animation:hvalaUlaz .45s cubic-bezier(.2,.9,.3,1.25) both; position:relative }
+
+/* ---- Vatromet trešnjica na potvrdi porudžbine ----
+   Trešnje prsnu iz sredine zahvalnice i razlete se u svim pravcima.
+   Sloj stoji FIKSNO preko celog ekrana i kači se na <body>, a ne na prozor
+   porudžbine — .modal__okvir ima overflow:auto koji bi im odsekao let čim
+   izađu iz okvira. z-index 210 je iznad modala (200). */
+.vatromet{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:210 }
+.vatromet i{
+  position:absolute; left:var(--x, 50%); top:var(--y, 40%);
+  width:var(--v, 22px); height:var(--v, 22px);
+  margin:calc(var(--v, 22px) / -2); will-change:transform, opacity;
+  animation:prsni var(--traj, 1100ms) cubic-bezier(.15,.7,.35,1) var(--kasni, 0ms) both;
+}
+.vatromet i svg{ width:100%; height:100%; display:block }
+@keyframes prsni{
+  0%   { transform:translate(0,0) scale(.25) rotate(0deg); opacity:0 }
+  12%  { opacity:1 }
+  70%  { opacity:1 }
+  100% { transform:translate(var(--dx), var(--dy)) scale(1) rotate(var(--obrt)); opacity:0 }
+}
+@media (prefers-reduced-motion:reduce){ .vatromet{ display:none } }
+
+/* ============================================================
+   DOSTAVA / O NAMA
+   ============================================================ */
+.dve-kolone{ display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start }
+@media (max-width:880px){ .dve-kolone{ grid-template-columns:1fr; gap:48px } }
+/* Spisak na strani Dostava: crtež sedi u obojenoj pločici, kao ikonice vrsta
+   i tema, a boje se smenjuju kroz istu paletu kao Kategorije. */
+.lista{ list-style:none; padding:0; margin:26px 0 0; display:flex; flex-direction:column; gap:14px }
+.lista li{
+  display:flex; gap:15px; align-items:flex-start;
+  background:#fff; border:1.5px solid var(--ivica-plocice, var(--brend-roze-blaga));
+  border-radius:18px; padding:15px 17px;
+  transition:transform .16s cubic-bezier(.2,.9,.3,1.3), box-shadow .16s ease;
+}
+.lista li:hover{ transform:translateY(-3px); box-shadow:0 12px 22px -16px rgba(142,33,25,.5) }
+.lista__znak{
+  flex:none; width:52px; height:52px; border-radius:15px;
+  display:grid; place-items:center;
+  background:var(--tlo-plocice, var(--brend-krem));
+  border:1.5px solid var(--ivica-plocice, var(--brend-roze-blaga));
+}
+.lista__stavka--1{ --tlo-plocice:#FDE7EE; --ivica-plocice:#F2BCCC }
+.lista__stavka--2{ --tlo-plocice:#E4EFF6; --ivica-plocice:#B4D2E4 }
+.lista__stavka--3{ --tlo-plocice:#EDF3E1; --ivica-plocice:#C3D8A4 }
+.lista__stavka--4{ --tlo-plocice:#F3E8FB; --ivica-plocice:#CFB8EA }
+@media (max-width:520px){
+  .lista li{ padding:13px 14px; gap:12px }
+  .lista__znak{ width:46px; height:46px; border-radius:13px }
+}
+
+/* Priča o radionici stoji u krem panelu, kao filteri i paneli drugde. */
+.radionica{
+  background:var(--brend-krem); border:1.5px solid #EFD9C9;
+  border-radius:24px; padding:28px 26px 30px;
+}
+@media (min-width:880px){ .radionica{ padding:32px 30px 34px } }
+/* Dugme za porudžbinu je sada okrugla korpica u uglu reda sa nazivom.
+   Klasa .naruci je ostala, pa porudžbenica radi kao i pre. */
+.korpa{
+  flex:none; width:34px; height:34px; padding:0; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--brend-crvena); color:#fff;
+  border:0; border-radius:999px;
+  transition:background .16s ease, transform .16s cubic-bezier(.2,.9,.3,1.3);
+}
+.korpa svg{ width:17px; height:17px }
+.korpa:hover, .korpa:focus-visible{ background:var(--brend-crvena-svetla); transform:translateY(-2px) }
+.korpa:active{ background:var(--brend-crvena-tamna); transform:translateY(1px) }
+/* proizvod koji još nije na stanju — tiha, prazna korpica */
+.korpa--tiho{ background:#fff; color:var(--brend-crvena); box-shadow:inset 0 0 0 2px var(--brend-crvena) }
+.korpa--tiho:hover{ background:var(--brend-crvena); color:#fff }
+/* dugme je stvarno neaktivno dok proizvod nije u prodaji — kursor i lakši hover
+   pokazuju da klik neće ništa pokrenuti */
+.korpa:disabled{ cursor:not-allowed }
+.korpa--tiho:disabled:hover{ background:#fff; color:var(--brend-crvena) }
+
+
+.lista__znak svg{ width:32px; height:32px; display:block }
+.lista b{ display:block; font-family:var(--naslovi); font-weight:800; font-size:18px; color:var(--brend-crvena); margin-bottom:3px }
+.lista p{ color:var(--mastilo-blago); font-size:15.5px }
+
+.poziv{
+  position:relative; overflow:hidden; text-align:center;
+  background:var(--brend-krem);
+  border:0;
+  border-radius:var(--r-xl); padding:52px 34px;
+  box-shadow:0 14px 34px -18px rgba(142,33,25,.4);
+}
+@media (min-width:760px){ .poziv{ padding:64px 44px } }
+.poziv h2{ font-size:clamp(30px, 4.3vw, 48px); color:var(--brend-crvena); position:relative; z-index:2 }
+.poziv p{ margin-top:16px; color:#5E3742; max-width:48ch; margin-inline:auto; position:relative; z-index:2; font-weight:500 }
+.poziv .dugme{ margin-top:32px; position:relative; z-index:2 }
+
+/* ============================================================
+   KONFIGURATOR — razigran, nepravilan izgled po Tijaninoj referenci:
+   krupne organske mrlje u pozadini, zvezdice i pokretna traka sa porukom.
+   ============================================================ */
+.koraci-strana, .izbor-strana{ position:relative; overflow:hidden }
+.izbor-strana .izbor-panel{ position:relative; z-index:1 }
+.mrlje{ position:absolute; inset:0; pointer-events:none; z-index:0 }
+.koraci-strana > .omot{ position:relative; z-index:1 }
+
+.mrlja-blob{
+  position:absolute; display:block;
+  filter:blur(.5px);
+}
+/* svaka mrlja ima svoj nepravilan obris — osam vrednosti border-radiusa */
+.mrlja-blob--1{
+  width:min(46vw, 460px); aspect-ratio:1.15/1; left:-9%; top:-14%;
+  background:var(--brend-roze-blaga);
+  border-radius:58% 42% 47% 53% / 44% 56% 44% 56%;
+  opacity:.75;
+}
+.mrlja-blob--2{
+  width:min(38vw, 360px); aspect-ratio:1/1.1; right:-8%; top:18%;
+  background:#FBD9C4;
+  border-radius:42% 58% 55% 45% / 55% 43% 57% 45%;
+  opacity:.7;
+}
+.mrlja-blob--3{
+  width:min(30vw, 300px); aspect-ratio:1.2/1; left:16%; bottom:-16%;
+  background:#DCC8F2;
+  border-radius:50% 50% 38% 62% / 60% 40% 60% 40%;
+  opacity:.55;
+}
+.zvezda{ position:absolute; width:26px; height:26px }
+.zvezda--1{ left:8%;  top:26%; rotate:-12deg }
+.zvezda--2{ right:12%; top:9%;  width:20px; height:20px; rotate:14deg }
+.zvezda--3{ right:22%; bottom:14%; width:22px; height:22px; rotate:-6deg }
+@media (max-width:720px){
+  .zvezda--2, .zvezda--3{ display:none }
+}
+
+/* traka koja klizi — dve iste rečenice u nizu, druga preuzima kad prva ode */
+.vrpca{
+  background:var(--brend-crvena); color:#fff;
+  padding:11px 0; overflow:hidden; white-space:nowrap;
+}
+.vrpca__red{ display:inline-flex; gap:0; animation:vrpca 26s linear infinite }
+.vrpca__red span{
+  font-family:var(--naslovi); font-weight:800; font-size:.98rem;
+  letter-spacing:.02em; padding-right:34px;
+}
+@keyframes vrpca{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+@media (prefers-reduced-motion:reduce){
+  .vrpca__red{ animation:none }
+}
+
+/* ============================================================
+   IZBOR PROIZVODA U KONFIGURATORU — potpuno drukčiji potez od crvenog
+   rama sa kockastom trakom: strana je podeljena na dve boje, iste kao
+   Šoljice/Tumbleri u Kategorijama, a fotografija svakog belog proizvoda
+   stoji u svom fluidnom, nepravilnom okviru.
+   ============================================================ */
+.izbor-panel{
+  max-width:1080px; margin:36px auto 0;
+  border-radius:34px; overflow:hidden;
+  box-shadow:0 18px 40px -22px rgba(74,44,119,.35);
+}
+.izbor-panel__karta{ background:none; padding:0; overflow:visible }
+.izbor-panel .karo-traka{ display:none }
+.izbor-panel .izbor-proizvoda.grid{ margin:0; max-width:none; gap:0; grid-template-columns:repeat(2, 1fr) }
+/* Na uskom ekranu 2+1 ostavlja treću pločicu samu u redu s praznim
+   prostorom pored nje — pređi na jednu kolonu da sve tri budu pune širine. */
+@media (max-width:520px){
+  .izbor-panel .izbor-proizvoda.grid{ grid-template-columns:1fr }
+}
+@media (min-width:720px){
+  .izbor-panel .izbor-proizvoda.grid{ grid-template-columns:repeat(5, 1fr) }
+}
+
+/* Dva puna polja boje — lila za šoljicu, breskva za tumbler — direktno iz
+   palete redova u Kategorijama, bez belog rama oko njih. */
+.izbor-proizvoda .tile{
+  background:#D6C4EE; border:0; box-shadow:none; border-radius:0;
+  padding:30px 20px 26px;
+}
+.izbor-proizvoda .tile.alt{ background:#F7C8A8; border-radius:0 }
+.izbor-proizvoda .tile.alt2{ background:#F8C6D5; border-radius:0 }
+
+/* Fotografija dobija fluidan, nepravilan okvir umesto pravougaonika — osam
+   vrednosti border-radiusa, drukčije za svaku pločicu da se par ne ponavlja.
+   Beli proizvod stoji na svojoj beloj podlozi unutar tog oblika. */
+.izbor-proizvoda .tile-img{
+  height:auto; aspect-ratio:1/1; max-width:230px; margin-inline:auto;
+  background:#fff;
+  border-radius:58% 42% 45% 55% / 46% 40% 60% 54%;
+  padding:22px;
+}
+.izbor-proizvoda .tile.alt .tile-img{
+  border-radius:42% 58% 55% 45% / 54% 60% 40% 46%;
+  padding:0; background:#fff;
+}
+.izbor-proizvoda .tile.alt .tile-img img{ border-radius:inherit }
+.izbor-proizvoda .tile.alt2 .tile-img{
+  border-radius:50% 50% 40% 60% / 60% 45% 55% 40%;
+}
+
+/* Umesto fotografije, u okviru stoji ista ikonica kao gore u naslovu —
+   samo mnogo krupnija, jer je sad ona sam sadržaj okvira. */
+.tile-img--ikona{ display:flex; align-items:center; justify-content:center }
+.tile-img__ikona{ width:64%; height:64%; display:block }
+
+.izbor-proizvoda .tile-body{ padding-top:16px }
+.izbor-proizvoda .tile-title{ color:#4A2C77; font-size:.92rem; line-height:1.2 }
+.izbor-proizvoda .tile.alt .tile-title{ color:#8A4416 }
+.izbor-proizvoda .tile.alt2 .tile-title{ color:#A63527 }
+.izbor-proizvoda .tile-sub{ color:#5B4A6E; font-size:.76rem; line-height:1.35 }
+.izbor-proizvoda .tile.alt .tile-sub{ color:#7A4A26 }
+.izbor-proizvoda .tile.alt2 .tile-sub{ color:#8A3428 }
+
+@media (min-width:560px){
+  .izbor-proizvoda .tile-img{ max-width:260px }
+}
+@media (min-width:720px){
+  .izbor-proizvoda .tile-img{ max-width:150px; padding:14px }
+  .izbor-proizvoda .tile{ padding:22px 14px 20px }
+  .izbor-proizvoda .tile-title{ font-size:.86rem }
+  .izbor-proizvoda .tile-sub{ font-size:.72rem }
+}
+
+/* ============================================================
+   PODNOŽJE
+   ============================================================ */
+.podnozje{ background:var(--mastilo); color:#F6E9EE; padding:56px 0 60px }
+.podnozje__red{ display:flex; flex-wrap:wrap; gap:28px; align-items:center; justify-content:space-between }
+.podnozje img{ height:38px; width:auto }
+.podnozje__sitno{ font-size:14px; color:#C6AEB9 }
+.podnozje a{ color:var(--brend-roze-srednja); font-weight:700; text-decoration:none }
+.podnozje a:hover{ color:#fff; text-decoration:underline }
+
+@media (prefers-reduced-motion:reduce){
+  html{ scroll-behavior:auto }
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
+}

@@ -14,10 +14,6 @@
      pišu na EMAIL, a porudžbenice se skupljaju odvojeno da se ne pomešaju. */
   var EMAIL_PORUDZBINE = "bedzic5@gmail.com";
 
-  /* ⬇⬇ KLJUČ SA web3forms.com — vezuje se za EMAIL_PORUDZBINE.
-     Dok je prazno, porudžbina se ne gubi — otvara se mejl program kupca sa
-     već popunjenom porukom, pa je dovoljno da pritisne „Pošalji". ⬇⬇ */
-  var WEB3FORMS_KLJUC = "c395cbe4-59b3-4eb1-80bf-fd1caafb7516";
 
   /* Šolja na naslovnoj lista njene prave dizajne — svaki ima svoje pismo,
      svoju boju i svoj odnos veličina redova, kao na fotografijama. */
@@ -96,8 +92,8 @@
     return String(t).split("\n").map(function (r) { return r.trim(); })
       .filter(function (r) { return r.length; }).slice(0, 3);
   }
-  /* pretvara data: URL (slika koju je korisnik poslao) u Blob, za slanje kao
-     prilog kad je WEB3FORMS_KLJUC upisan — mailto ne ume da nosi priloge */
+  /* pretvara data: URL (slika koju je korisnik poslao) u Blob, da bi mogla
+     da se zakači uz porudžbinu kao pravi fajl */
   function dataUrlUBlob(dataUrl) {
     var deo = dataUrl.split(",");
     var mime = (deo[0].match(/:(.*?);/) || [])[1] || "image/jpeg";
@@ -317,6 +313,21 @@
      zato su otvoriModal/zatvoriModal ovde, van oba bloka, kao i kopiraj(). */
   var modal = $("modal"), forma = $("forma"), hvala = $("hvala");
   var aktivnaInfo = null, poslednjiFokus = null;
+
+  /* Povratak sa FormSubmit-a (_next vraća na ?poslato=1) — kupcu se odmah
+     pokaže zahvalnica, sa sažetkom koji je zapamćen pre slanja. */
+  if (modal && new URLSearchParams(location.search).get("poslato") === "1") {
+    var sazetakNazad = "";
+    try { sazetakNazad = sessionStorage.getItem("bedzic_porudzbina") || ""; } catch (e) {}
+    try { sessionStorage.removeItem("bedzic_porudzbina"); } catch (e) {}
+    modal.hidden = false;
+    forma.hidden = true;
+    hvala.hidden = false;
+    if ($("hvalaSazetak")) $("hvalaSazetak").textContent = sazetakNazad;
+    document.body.style.overflow = "hidden";
+    /* uklanja ?poslato=1 iz adrese da osvežavanje ne pokaže zahvalnicu ponovo */
+    history.replaceState(null, "", location.pathname);
+  }
 
   function zatvoriModal() {
     modal.hidden = true;
@@ -949,8 +960,8 @@
            konfiguratora, da kupac u porudžbini vidi tačno svoj natpis/sliku */
         pregledEl: document.querySelector(".scena"),
         /* slika koju je poslao — nosimo je do submit handlera, koji je šalje
-           kao pravi prilog čim WEB3FORMS_KLJUC bude upisan. Zove se drugačije
-           od info.slika (to je URL fotografije proizvoda kod gotovih artikala). */
+           kao prilog uz porudžbinu. Zove se drugačije od info.slika (to je URL
+           fotografije proizvoda kod gotovih artikala). */
         korisnickaSlika: stanje.nacin === "slika" ? stanje.slika : null,
         opisDodatak: stanje.nacin === "slika"
           ? ["Personalizacija: sopstvena slika/logo (vidi se u pregledu ispod)"]
@@ -1243,9 +1254,11 @@
     if (podaci.zapremina && gz && !gz.hidden) r.push("Zapremina: " + podaci.zapremina);
     if (podaci.dostava) r.push("Preuzimanje: " + podaci.dostava);
     r.push("", "Ime i prezime: " + podaci.ime,
-           "Telefon: " + podaci.telefon,
-           "Adresa: " + podaci.adresa,
-           "Grad: " + podaci.grad + (podaci.posta ? ", " + podaci.posta : ""));
+           "Telefon: " + podaci.telefon);
+    /* kod ličnog preuzimanja adresnih podataka nema — bez ove provere bi u
+       mejlu stajale prazne rubrike „Adresa:" i „Grad:" */
+    if (podaci.adresa) r.push("Adresa: " + podaci.adresa);
+    if (podaci.grad) r.push("Grad: " + podaci.grad + (podaci.posta ? ", " + podaci.posta : ""));
     if (podaci.napomena) r.push("Napomena: " + podaci.napomena);
     return r.join("\n");
   }
@@ -1297,20 +1310,6 @@
     dugme.disabled = true;
     dugme.textContent = "Šaljem…";
 
-    function uspelo(dodatnaPoruka) {
-      forma.hidden = true;
-      hvala.hidden = false;
-      $("hvalaSazetak").textContent = tekst + (dodatnaPoruka ? "\n\n" + dodatnaPoruka : "");
-      hvala.scrollIntoView({ block: "nearest" });
-      vatromet(hvala);
-    }
-    function nijeUspelo(poruka) {
-      dugme.disabled = false;
-      dugme.textContent = aktivnaInfo.upit ? "Pošalji upit" : "Pošalji porudžbinu";
-      greska.hidden = false;
-      greska.textContent = poruka;
-    }
-
     var naslov = (aktivnaInfo.upit ? "Upit" : "Porudžbina") + " sa sajta — " + aktivnaInfo.ime;
 
     /* slika za štampu je sada obavezna u svakoj porudžbini (posebno polje
@@ -1328,31 +1327,6 @@
     }
 
     function nastaviSlanje(korisnickaSlika) {
-    /* slika koju je kupac poslao — mailto ne ume da nosi priloge, pa mu je
-       odmah spuštamo na disk da je ručno doda uz mejl (ili pošalje na
-       Instagram, kao i do sada kod kopiranja teksta) */
-    if (korisnickaSlika && !WEB3FORMS_KLJUC) {
-      var a = document.createElement("a");
-      a.href = korisnickaSlika.dataUrl;
-      a.download = korisnickaSlika.ime || "slika.jpg";
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }
-
-    if (!WEB3FORMS_KLJUC) {
-      /* Ključ još nije upisan — umesto da porudžbina propadne, otvara se mejl
-         program kupca sa već popunjenim primaocem, naslovom i celim tekstom.
-         Kupcu ostaje samo da pritisne „Pošalji" i poruka stiže na EMAIL.
-         Kopiramo i u clipboard, za slučaj da mejl program nije podešen. */
-      kopiraj(tekst, $("modalInfo"));
-      window.location.href = "mailto:" + EMAIL_PORUDZBINE +
-        "?subject=" + encodeURIComponent(naslov) +
-        "&body=" + encodeURIComponent(tekst);
-      uspelo();
-      return;
-    }
-
-    /* slika ide kao pravi prilog (multipart), zato ide FormData a ne JSON —
-       web3forms sam prepozna fajl polje i zakači ga na mejl */
     /* Kod ličnog preuzimanja adresna polja su prazna — šalje se jasan tekst
        umesto praznog stringa, da u mejlu ne stoje prazne rubrike. */
     var licno = String(podaci.dostava || "").indexOf("Lično") === 0;
@@ -1360,50 +1334,56 @@
     var gradZaMejl   = licno ? "Lično preuzimanje" : podaci.grad;
     var postaZaMejl  = licno ? "Lično preuzimanje" : podaci.posta;
 
-    function posalji(prilog, napomenaOSlici) {
-      var podaciSlanja = new FormData();
-      podaciSlanja.append("access_key", WEB3FORMS_KLJUC);
-      podaciSlanja.append("subject", naslov);
-      podaciSlanja.append("from_name", "Bedžić sajt");
-      podaciSlanja.append("replyto", EMAIL);
-      podaciSlanja.append("proizvod", aktivnaInfo.ime);
-      podaciSlanja.append("cena", aktivnaInfo.cena);
-      podaciSlanja.append("ime", podaci.ime);
-      podaciSlanja.append("telefon", podaci.telefon);
-      podaciSlanja.append("adresa", adresaZaMejl);
-      podaciSlanja.append("grad", gradZaMejl);
-      podaciSlanja.append("posta", postaZaMejl);
-      podaciSlanja.append("dostava", podaci.dostava || "");
-      podaciSlanja.append("napomena", podaci.napomena || "");
-      podaciSlanja.append("message", tekst + (napomenaOSlici ? "\n\n" + napomenaOSlici : ""));
-      if (prilog) podaciSlanja.append("attachment", prilog.blob, prilog.ime || "slika.jpg");
+    /* SLANJE PREKO FORMSUBMIT.CO
+       Prilozi kod njih rade samo uz obično slanje forme (multipart POST) —
+       preko AJAX-a se fajlovi tiho gube. Zato se gradi privremena forma i
+       šalje normalno, a _next vraća kupca na ovu stranu gde vidi zahvalnicu. */
+    function posalji(prilog) {
+      var povratak = location.origin + location.pathname + "?poslato=1";
+      var polja = {
+        _subject: naslov,
+        _next: povratak,
+        _captcha: "false",
+        _template: "table",
+        Proizvod: aktivnaInfo.ime,
+        Cena: aktivnaInfo.cena,
+        "Ime i prezime": podaci.ime,
+        Telefon: podaci.telefon,
+        Dostava: podaci.dostava || "",
+        Adresa: adresaZaMejl,
+        Grad: gradZaMejl,
+        "Poštanski broj": postaZaMejl,
+        Napomena: podaci.napomena || "",
+        Porudžbina: tekst
+      };
 
-      fetch("https://api.web3forms.com/submit", {
-        method: "POST", headers: { Accept: "application/json" }, body: podaciSlanja
-      })
-        .then(function (o) {
-          return o.json().catch(function () { return {}; }).then(function (telo) {
-            if (!o.ok || !telo || !telo.success) {
-              /* pravi razlog odbijanja — bez ovoga se u konzoli ne vidi ništa */
-              console.error("Porudžbina nije prošla — status:", o.status, telo);
-              /* Besplatni paket servisa ne prima priloge. Porudžbina je važnija
-                 od slike — šalje se ponovo bez nje, a kupcu se kaže da sliku
-                 pošalje posebno. Bez ovoga bi cela porudžbina propala. */
-              if (prilog) {
-                posalji(null, "Napomena: slika nije mogla da se zakači uz mejl — kupac je šalje posebno.");
-                return;
-              }
-              var razlog = (telo && telo.message) ? " (" + telo.message + ")" : "";
-              nijeUspelo("Slanje nije uspelo" + razlog + ". Pokušaj ponovo ili nam piši na " + EMAIL + ".");
-              return;
-            }
-            uspelo(napomenaOSlici ? "Sliku nam pošalji na Instagram @bedzic ili na " + EMAIL + " — porudžbina je primljena." : "");
-          });
-        })
-        .catch(function (e) {
-          console.error("Porudžbina — greška u vezi:", e);
-          nijeUspelo("Nema veze sa internetom. Pokušaj ponovo ili nam piši na " + EMAIL + ".");
-        });
+      var f = document.createElement("form");
+      f.method = "POST";
+      f.action = "https://formsubmit.co/" + EMAIL_PORUDZBINE;
+      f.enctype = "multipart/form-data";
+      f.style.display = "none";
+
+      Object.keys(polja).forEach(function (k) {
+        var i = document.createElement("input");
+        i.type = "hidden"; i.name = k; i.value = polja[k];
+        f.appendChild(i);
+      });
+
+      if (prilog) {
+        var fajl = document.createElement("input");
+        fajl.type = "file";
+        fajl.name = "Slika za štampu";
+        var dt = new DataTransfer();
+        dt.items.add(new File([prilog.blob], prilog.ime || "slika.jpg", { type: prilog.blob.type }));
+        fajl.files = dt.files;
+        f.appendChild(fajl);
+      }
+
+      /* sažetak se pamti da bi zahvalnica posle povratka mogla da ga pokaže */
+      try { sessionStorage.setItem("bedzic_porudzbina", tekst); } catch (e) {}
+
+      document.body.appendChild(f);
+      f.submit();
     }
 
     if (korisnickaSlika) {

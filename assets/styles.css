@@ -196,7 +196,13 @@ a{ color:inherit }
   will-change:transform; animation:pada linear infinite; pointer-events:none;
 }
 /* na telefonu su iste trešnje prevelike u odnosu na uži ekran — pola veličine */
-@media (max-width:640px){ .pada{ width:calc(var(--v, 30px) * .5) } }
+/* Na telefonu kartica pokriva skoro celu širinu, pa bi trešnje iza nje
+   bile nevidljive — ovde idu ispred, ali providnije da ne smetaju tekstu. */
+@media (max-width:640px){
+  .pada-sloj{ z-index:3 }
+  .pada{ width:calc(var(--v, 30px) * .72) }
+  .pada svg{ opacity:.6 }
+}
 .pada svg{ width:100%; height:auto; display:block }
 @keyframes pada{
   0%   { transform:translate3d(0, -150px, 0) rotate(0deg); opacity:0 }
@@ -1552,7 +1558,14 @@ a.eyebrow:hover{ background:#FFD968 }
 }
 /* JS na tren spusti neprozirnost dok menja izvor slike — bez toga bi
    nova fotografija „upala" naglo. */
-.izlog--menja .izlog__foto{ opacity:0 }
+.izlog__unutra{ overflow:hidden }
+.izlog__foto{ transition:opacity .26s ease, transform .26s ease; touch-action:pan-y }
+.izlog--menja .izlog__foto{ opacity:0; transform:translateX(-60px) }
+.izlog--nazad.izlog--menja .izlog__foto{ transform:translateX(60px) }
+.izlog--ulazi .izlog__foto{ animation:izlogUlaz .38s cubic-bezier(.2,.8,.3,1) }
+.izlog--nazad.izlog--ulazi .izlog__foto{ animation-name:izlogUlazNazad }
+@keyframes izlogUlaz{ from{ opacity:0; transform:translateX(60px) } to{ opacity:1; transform:none } }
+@keyframes izlogUlazNazad{ from{ opacity:0; transform:translateX(-60px) } to{ opacity:1; transform:none } }
 .izlog__cena{
   position:absolute; left:50%; bottom:11px; transform:translateX(-50%);
   background:#FFD98A; color:#8A4416;
@@ -1604,7 +1617,7 @@ a.eyebrow:hover{ background:#FFD968 }
 .izlog__tacka--tekuca span{ width:26px; background:var(--brend-crvena) }
 
 @media (prefers-reduced-motion:reduce){
-  .izlog__ram, .izlog__foto, .izlog__stavka{ transition:none }
+  .izlog__ram, .izlog__foto, .izlog__stavka{ transition:none; animation:none !important }
 }
 
 /* ============================================================

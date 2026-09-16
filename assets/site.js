@@ -396,7 +396,8 @@
     var napomena = $("modalNapomenaLicno");
     if (napomena) napomena.hidden = !licno;
   }
-  Array.prototype.forEach.call(forma.querySelectorAll('[name="dostava"]'), function (r) {
+  /* forme nema na naslovnoj — bez ove provere pukne ceo ostatak skripte */
+  if (forma) Array.prototype.forEach.call(forma.querySelectorAll('[name="dostava"]'), function (r) {
     r.addEventListener("change", sinhronizujPreuzimanje);
   });
 
@@ -1012,11 +1013,11 @@
       { id: "ljubimci",   ime: "Ljubimci" },
       { id: "ljubav",     ime: "Ljubav" },
       { id: "porodica",   ime: "Porodica" },
-      { id: "deca",       ime: "Za decu" },
+      { id: "deca",       ime: "Deca" },
       { id: "sport",      ime: "Sport" },
       { id: "medicina",   ime: "Zanimanja" },
       { id: "serije",     ime: "Filmovi i serije" },
-      { id: "ostalo",     ime: "Šef" }
+      { id: "ostalo",     ime: "Ostalo" }
     ];
 
     var izbor = { vrsta: "sve", tema: "sve" };
@@ -1516,7 +1517,7 @@
   /* ---- Izlog „Najtraženije" ------------------------------------------
      Spisak naziva desno upravlja fotografijom levo. Stavka se pali kad
      pređeš mišem, kad je fokusiraš tastaturom ili kad joj dođe red — sam
-     se smenjuje na 4,5 s. Klik i dalje vodi na katalog, pa blok radi i
+     se smenjuje na 2,5 s. Klik i dalje vodi na katalog, pa blok radi i
      bez JavaScripta. */
   (function () {
     var izlog = $("izlog");
@@ -1530,10 +1531,11 @@
 
     var tekuca = 0, sat = null;
 
-    function prikazi(i) {
+    function prikazi(i, nazad) {
       if (i === tekuca) return;
       var a = stavke[i];
       tekuca = i;
+      izlog.classList.toggle("izlog--nazad", !!nazad);
 
       for (var j = 0; j < stavke.length; j++) {
         stavke[j].className = "izlog__tacka" + (j === i ? " izlog__tacka--tekuca" : "");
@@ -1552,28 +1554,60 @@
         foto.alt = a.getAttribute("data-alt");
         return;
       }
-      /* slika se prvo ugasi, pa se tek učitana vrati — bez treptaja */
+      /* slajd: stara slika klizne napolje, nova (tek kad se učita) uklizi */
+      izlog.classList.remove("izlog--ulazi");
       izlog.classList.add("izlog--menja");
-      var nova = new Image();
+      var nova = new Image(), kraj = Date.now() + 260;
       nova.onload = nova.onerror = function () {
-        foto.src = a.getAttribute("data-foto");
-        foto.alt = a.getAttribute("data-alt");
-        izlog.classList.remove("izlog--menja");
+        setTimeout(function () {
+          if (stavke[tekuca] !== a) return;
+          foto.src = a.getAttribute("data-foto");
+          foto.alt = a.getAttribute("data-alt");
+          izlog.classList.remove("izlog--menja");
+          void foto.offsetWidth;
+          izlog.classList.add("izlog--ulazi");
+        }, Math.max(0, kraj - Date.now()));
       };
       nova.src = a.getAttribute("data-foto");
     }
 
     function dalje() { prikazi((tekuca + 1) % stavke.length); }
-    function pokreni() { if (!sat && !mirnije) sat = setInterval(dalje, 4500); }
+    function nazad() { prikazi((tekuca - 1 + stavke.length) % stavke.length, true); }
+    /* vrti se uvek — i kad telefon traži manje animacija; tada samo bez klizanja */
+    function pokreni() { if (!sat) sat = setInterval(dalje, 2500); }
     function stani() { if (sat) { clearInterval(sat); sat = null; } }
+    /* posle dodira ili prevlačenja kratko sačeka, pa nastavi sam */
+    var odmor = null;
+    function predah() {
+      stani(); clearTimeout(odmor);
+      odmor = setTimeout(pokreni, 4000);
+    }
 
     Array.prototype.forEach.call(stavke, function (a, i) {
       a.addEventListener("mouseenter", function () { stani(); prikazi(i); });
-      a.addEventListener("focus", function () { stani(); prikazi(i); });
-      /* na dodir prvi tap samo menja sliku, drugi otvara katalog */
+      a.addEventListener("focus", function () { stani(); prikazi(i, i < tekuca); });
       a.addEventListener("click", function (e) {
-        e.preventDefault(); stani(); prikazi(i);
+        e.preventDefault(); prikazi(i, i < tekuca); predah();
       });
+    });
+
+    /* prevlačenje prstom preko fotografije: levo = sledeći, desno = prethodni */
+    var x0 = null, y0 = 0, prevukao = false;
+    veza.addEventListener("touchstart", function (e) {
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; prevukao = false;
+    }, { passive: true });
+    veza.addEventListener("touchend", function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        prevukao = true;
+        if (dx < 0) dalje(); else nazad();
+        predah();
+      }
+    });
+    veza.addEventListener("click", function (e) {
+      if (prevukao) { e.preventDefault(); prevukao = false; }
     });
     izlog.addEventListener("mouseleave", pokreni);
     izlog.addEventListener("focusout", function (e) {

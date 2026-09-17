@@ -2469,4 +2469,22 @@ textarea.polje:focus{ outline:none; border-color:var(--crvena); box-shadow:0 0 0
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto }
   *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
-}.podnozje__autor{ font-size:12px; opacity:.75 }
+}
+
+/* Najdonja linija podnožja: copyright levo, potpis izrade desno.
+   Namerno tiho — sitno, sivo, ne takmiči se sa kontaktom iznad. */
+.podnozje__dno{
+  display:flex; flex-wrap:wrap; gap:6px 20px; align-items:center; justify-content:space-between;
+  margin-top:32px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08);
+}
+.podnozje__copy, .podnozje__potpis{
+  margin:0; font-family:var(--tekst); font-size:12px; font-weight:500;
+  letter-spacing:.01em; color:#A3A3A3; opacity:.55; transition:opacity .2s ease;
+}
+.podnozje .podnozje__potpis a{
+  color:inherit; font-weight:600; text-decoration:none;
+  transition:color .2s ease, opacity .2s ease;
+}
+.podnozje__potpis:has(a:hover), .podnozje__potpis:has(a:focus-visible){ opacity:1 }
+.podnozje .podnozje__potpis a:hover, .podnozje .podnozje__potpis a:focus-visible{ color:#fff; opacity:1; text-decoration:none }
+@media (max-width:560px){ .podnozje__dno{ justify-content:center; text-align:center } }

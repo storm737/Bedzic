@@ -1299,14 +1299,17 @@ a.eyebrow:hover{ background:#FFD968 }
 }
 .solja{ position:relative; isolation:isolate; width:100%; container-type:inline-size }
 .solja__foto{ width:100%; height:auto; display:block; position:relative; z-index:1 }
-/* natpis ide na prednju stranu — ručka je levo */
+/* natpis ide na prednju stranu — ručka je levo. Telo šoljice na fotografiji
+   (solja-bela.png) zauzima 23–78% širine, sredina mu je na ~50,5%;
+   tanjir počinje na ~60% visine, pa je natpis iznad njega. */
 .natpis{
-  position:absolute; left:37.5%; top:51%; width:51%; translate:0 -50%;
+  position:absolute; left:27.5%; top:45%; width:46%; translate:0 -50%;
   z-index:3; text-align:center; pointer-events:none;
   display:flex; flex-direction:column; justify-content:center; align-items:center; gap:.06em;
 }
 .natpis[hidden]{ display:none }
-.natpis__unutra{ transform:perspective(340px) rotateY(6deg); width:100% }
+/* fotografija je snimljena spreda, pa natpis ne treba iskositi */
+.natpis__unutra{ width:100% }
 /* --osnova daje stil slova, --skala bira korisnik za svaki red posebno */
 .natpis__red{
   display:block; width:100%; word-break:break-word;
@@ -2466,4 +2469,4 @@ textarea.polje:focus{ outline:none; border-color:var(--crvena); box-shadow:0 0 0
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto }
   *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
-}
+}.podnozje__autor{ font-size:12px; opacity:.75 }

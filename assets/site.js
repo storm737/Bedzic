@@ -1339,8 +1339,10 @@
        Prilozi kod njih rade samo uz obično slanje forme (multipart POST) —
        preko AJAX-a se fajlovi tiho gube. Zato se gradi privremena forma i
        šalje normalno, a _next vraća kupca na ovu stranu gde vidi zahvalnicu. */
-    function posalji(prilog) {
+    function posalji(prilog, fotoProizvoda) {
       var povratak = location.origin + location.pathname + "?poslato=1";
+      /* gotovi proizvod: u mejlu i link ka fotografiji, ako prilog ne stigne */
+      var fotoUrl = aktivnaInfo.slika ? new URL(aktivnaInfo.slika, location.href).href : "";
       var polja = {
         _subject: naslov,
         _next: povratak,
@@ -1357,6 +1359,7 @@
         Napomena: podaci.napomena || "",
         Porudžbina: tekst
       };
+      if (fotoUrl) polja["Link fotografije"] = fotoUrl;
 
       var f = document.createElement("form");
       f.method = "POST";
@@ -1379,6 +1382,15 @@
         fajl.files = dt.files;
         f.appendChild(fajl);
       }
+      if (fotoProizvoda) {
+        var fp = document.createElement("input");
+        fp.type = "file";
+        fp.name = "Fotografija proizvoda";
+        var dt2 = new DataTransfer();
+        dt2.items.add(new File([fotoProizvoda.blob], fotoProizvoda.ime || "proizvod.jpg", { type: fotoProizvoda.blob.type }));
+        fp.files = dt2.files;
+        f.appendChild(fp);
+      }
 
       /* sažetak se pamti da bi zahvalnica posle povratka mogla da ga pokaže */
       try { sessionStorage.setItem("bedzic_porudzbina", tekst); } catch (e) {}
@@ -1387,11 +1399,31 @@
       f.submit();
     }
 
-    if (korisnickaSlika) {
-      pripremiSlikuZaSlanje(korisnickaSlika.dataUrl, korisnickaSlika.ime).then(posalji);
-    } else {
-      posalji(null);
+    /* Gotov proizvod: fotografija sa sajta ide kao prilog, da se u mejlu
+       vidi šta je naručeno. Ako preuzimanje ne uspe, porudžbina ipak ide
+       (sa linkom ka fotografiji u tekstu). */
+    function fotoGotovog() {
+      if (!aktivnaInfo.slika || aktivnaInfo.pregledEl) return Promise.resolve(null);
+      var ime = decodeURIComponent(aktivnaInfo.slika.split("?")[0].split("/").pop());
+      return fetch(aktivnaInfo.slika)
+        .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
+        .then(function (blob) {
+          return new Promise(function (resolve) {
+            var c = new FileReader();
+            c.onload = function () { resolve(pripremiSlikuZaSlanje(c.result, ime)); };
+            c.onerror = function () { resolve(null); };
+            c.readAsDataURL(blob);
+          });
+        })
+        .catch(function () { return null; });
     }
+
+    var prilogKupca = korisnickaSlika
+      ? pripremiSlikuZaSlanje(korisnickaSlika.dataUrl, korisnickaSlika.ime)
+      : Promise.resolve(null);
+    Promise.all([prilogKupca, fotoGotovog()]).then(function (p) {
+      posalji(p[0], p[1]);
+    });
     } /* kraj: nastaviSlanje() */
   });
   } /* kraj: if (modal) — blok specifičan za katalog gotovih proizvoda */

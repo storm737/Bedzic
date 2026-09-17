@@ -136,6 +136,257 @@
     });
   }
 
+  /* ====== KORPA ============================================================
+     Kupac dodaje više proizvoda, pa ih sve zajedno poručuje jednim mejlom.
+     Stavke se pamte u localStorage, da korpa preživi prelazak sa kataloga na
+     konfigurator i osvežavanje strane. Slike (sopstvene, iz konfiguratora)
+     pamte se kao dataURL — ako skladište pukne, ostaju samo u ovoj sesiji. */
+  var KORPA_KLJUC = "bedzic_korpa";
+  var korpa = [];
+  try { korpa = JSON.parse(localStorage.getItem(KORPA_KLJUC) || "[]") || []; } catch (e) { korpa = []; }
+  if (!Array.isArray(korpa)) korpa = [];
+
+  function korpaSacuvaj() {
+    try { localStorage.setItem(KORPA_KLJUC, JSON.stringify(korpa)); } catch (e) {}
+    korpaOsveziBroj();
+  }
+  function korpaOcisti() {
+    korpa = [];
+    try { localStorage.removeItem(KORPA_KLJUC); } catch (e) {}
+    korpaOsveziBroj();
+  }
+  function korpaKomada() {
+    return korpa.reduce(function (s, x) { return s + (x.kom || 1); }, 0);
+  }
+  function cenaUBroj(tekst) {
+    var t = String(tekst || "").replace(/\./g, "");
+    var m = t.match(/\d+/);
+    return m ? parseInt(m[0], 10) : null;
+  }
+  function dinari(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+  /* zbir robe; null znači da neka stavka ide „na upit", pa ukupno ne stoji */
+  function korpaZbir() {
+    var s = 0, upit = false;
+    korpa.forEach(function (x) {
+      var c = cenaUBroj(x.cena);
+      if (c === null) { upit = true; return; }
+      s += c * (x.kom || 1);
+    });
+    return { suma: s, upit: upit };
+  }
+  function korpaDodaj(stavka) {
+    stavka.kom = stavka.kom || 1;
+    korpa.push(stavka);
+    korpaSacuvaj();
+  }
+
+  /* ---- dugme sa brojem u navigaciji (na svim stranama) ---- */
+  function korpaOsveziBroj() {
+    var b = document.querySelectorAll(".nav__korpa__broj");
+    var n = korpaKomada();
+    Array.prototype.forEach.call(b, function (el) {
+      el.textContent = n;
+      el.hidden = n === 0;
+    });
+    var dugmad = document.querySelectorAll(".nav__korpa");
+    Array.prototype.forEach.call(dugmad, function (el) {
+      el.setAttribute("aria-label", n ? "Korpa — " + n + " proizvoda" : "Korpa (prazna)");
+    });
+    var spisak = $("korpaSpisak");
+    if (spisak && !$("korpaPanel").hidden) korpaIscrtaj();
+  }
+
+  (function () {
+    var red = document.querySelector(".nav__red");
+    if (!red) return;
+    var d = document.createElement("button");
+    d.type = "button";
+    d.className = "nav__korpa";
+    d.id = "navKorpa";
+    d.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M3 4h2.2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.5L21 8H6.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></svg>' +
+      '<span class="nav__korpa__broj" hidden>0</span>';
+    d.addEventListener("click", function () { korpaOtvori(); });
+    /* posle dugmeta za Instagram — korpa je poslednja u redu navigacije;
+       na telefonu ostaje u traci (meni se skuplja), pa je CSS-om vraćamo
+       levo od dugmeta za meni */
+    red.appendChild(d);
+  })();
+
+  /* ---- panel korpe (gradi se u JS-u, da ne stoji u svakom HTML-u) ---- */
+  function korpaPanelNapravi() {
+    if ($("korpaPanel")) return $("korpaPanel");
+    var p = document.createElement("div");
+    p.className = "korpa-panel";
+    p.id = "korpaPanel";
+    p.hidden = true;
+    p.innerHTML =
+      '<div class="korpa-panel__pozadina" data-korpa-zatvori aria-hidden="true"></div>' +
+      '<div class="korpa-panel__okvir" role="dialog" aria-modal="true" aria-label="Korpa">' +
+      '<button class="modal__x" type="button" data-korpa-zatvori aria-label="Zatvori">×</button>' +
+      '<div class="korpa-panel__vrh">' +
+      '<h3 class="korpa-panel__naslov">Tvoja korpa</h3>' +
+      '<button type="button" class="korpa-panel__prazni" id="korpaPrazni">Isprazni korpu</button>' +
+      "</div>" +
+      '<div id="korpaSpisak"></div>' +
+      '<p class="korpa-panel__zbir" id="korpaZbir"></p>' +
+      '<div class="modal__dugmad">' +
+      '<button class="dugme dugme--tiho" type="button" data-korpa-zatvori>Nastavi kupovinu</button>' +
+      '<button class="dugme" type="button" id="korpaPoruci">Poruči sve</button>' +
+      "</div></div>";
+    document.body.appendChild(p);
+    Array.prototype.forEach.call(p.querySelectorAll("[data-korpa-zatvori]"), function (el) {
+      el.addEventListener("click", korpaZatvori);
+    });
+    $("korpaPoruci").addEventListener("click", korpaNaPlacanje);
+
+    /* praznjenje cele korpe — prvi klik pita, drugi zaista prazni, pa se
+       korpa ne obriše slučajno (bez iskačućeg prozora pregledača) */
+    var prazni = $("korpaPrazni"), pitanje = null;
+    prazni.addEventListener("click", function () {
+      if (prazni.dataset.pita === "da") {
+        korpaOcisti();
+        korpaIscrtaj();
+        korpaVratiPrazni();
+        return;
+      }
+      prazni.dataset.pita = "da";
+      prazni.textContent = "Sigurno? Klikni još jednom";
+      prazni.classList.add("korpa-panel__prazni--pita");
+      clearTimeout(pitanje);
+      pitanje = setTimeout(korpaVratiPrazni, 4000);
+    });
+    function korpaVratiPrazni() {
+      clearTimeout(pitanje);
+      prazni.dataset.pita = "ne";
+      prazni.textContent = "Isprazni korpu";
+      prazni.classList.remove("korpa-panel__prazni--pita");
+    }
+    p.__vratiPrazni = korpaVratiPrazni;
+    return p;
+  }
+
+  function korpaIscrtaj() {
+    var spisak = $("korpaSpisak");
+    if (!spisak) return;
+    spisak.innerHTML = "";
+    if (!korpa.length) {
+      spisak.innerHTML = '<p class="korpa-panel__prazna">Korpa je prazna. Izaberi proizvod i dodaj ga u korpu.</p>';
+      $("korpaZbir").textContent = "";
+      $("korpaPoruci").disabled = true;
+      /* prazna korpa — nema šta da se prazni */
+      if ($("korpaPrazni")) $("korpaPrazni").hidden = true;
+      return;
+    }
+    $("korpaPoruci").disabled = false;
+    if ($("korpaPrazni")) $("korpaPrazni").hidden = false;
+
+    korpa.forEach(function (x, i) {
+      var red = document.createElement("div");
+      red.className = "korpa-stavka";
+      var slika = x.slikaDataUrl || x.slikaUrl || "";
+      red.innerHTML =
+        (slika ? '<img class="korpa-stavka__foto" alt="" />' : '<span class="korpa-stavka__foto korpa-stavka__foto--bez" aria-hidden="true"></span>') +
+        '<div class="korpa-stavka__telo">' +
+        '<p class="korpa-stavka__ime"></p>' +
+        '<p class="korpa-stavka__detalj"></p>' +
+        '<div class="korpa-stavka__alat">' +
+        '<button type="button" class="korpa-stavka__kom" data-manje aria-label="Manje">−</button>' +
+        '<span class="korpa-stavka__broj"></span>' +
+        '<button type="button" class="korpa-stavka__kom" data-vise aria-label="Više">+</button>' +
+        '<button type="button" class="korpa-stavka__izbaci" data-izbaci>Ukloni</button>' +
+        "</div></div>" +
+        '<p class="korpa-stavka__cena"></p>';
+      if (slika) red.querySelector(".korpa-stavka__foto").src = slika;
+      red.querySelector(".korpa-stavka__ime").textContent = x.ime;
+      red.querySelector(".korpa-stavka__detalj").textContent =
+        [x.detalj].concat(x.redovi || []).filter(Boolean).join(" · ");
+      red.querySelector(".korpa-stavka__broj").textContent = x.kom || 1;
+      var c = cenaUBroj(x.cena);
+      red.querySelector(".korpa-stavka__cena").textContent =
+        c === null ? x.cena : dinari(c * (x.kom || 1)) + " din";
+      red.querySelector("[data-manje]").addEventListener("click", function () {
+        if ((korpa[i].kom || 1) <= 1) return;
+        korpa[i].kom = (korpa[i].kom || 1) - 1;
+        korpaSacuvaj(); korpaIscrtaj();
+      });
+      red.querySelector("[data-vise]").addEventListener("click", function () {
+        korpa[i].kom = (korpa[i].kom || 1) + 1;
+        korpaSacuvaj(); korpaIscrtaj();
+      });
+      red.querySelector("[data-izbaci]").addEventListener("click", function () {
+        korpa.splice(i, 1);
+        korpaSacuvaj(); korpaIscrtaj();
+      });
+      spisak.appendChild(red);
+    });
+
+    var z = korpaZbir();
+    $("korpaZbir").innerHTML = z.upit
+      ? "Deo proizvoda ide na upit — cenu potvrđujemo mejlom."
+      : "Roba: <b>" + dinari(z.suma) + " din</b><br><small>Dostava 600 din, ako ne preuzimaš lično.</small>";
+  }
+
+  function korpaOtvori() {
+    korpaPanelNapravi().hidden = false;
+    document.body.style.overflow = "hidden";
+    korpaIscrtaj();
+  }
+  function korpaZatvori() {
+    var p = $("korpaPanel");
+    if (p) p.hidden = true;
+    document.body.style.overflow = "";
+  }
+  document.addEventListener("keydown", function (e) {
+    var p = $("korpaPanel");
+    if (e.key === "Escape" && p && !p.hidden) korpaZatvori();
+  });
+
+  /* „Poruči sve" — forma za podatke kupca postoji samo na katalogu i
+     konfiguratoru; sa ostalih strana vodimo kupca na katalog, gde se
+     porudžbina odmah otvara. */
+  function korpaNaPlacanje() {
+    if (!korpa.length) return;
+    if (typeof window.bedzicKorpaPlati === "function") {
+      korpaZatvori();
+      window.bedzicKorpaPlati();
+    } else {
+      location.href = "gotovi.html?korpa=poruci";
+    }
+  }
+
+  /* kratka potvrda da je proizvod ušao u korpu */
+  function korpaPoruka(tekst) {
+    var t = document.createElement("div");
+    t.className = "korpa-cik";
+    t.setAttribute("role", "status");
+    t.innerHTML = '<span></span> <button type="button">Vidi korpu</button>';
+    t.querySelector("span").textContent = tekst;
+    t.querySelector("button").addEventListener("click", function () {
+      t.remove(); korpaOtvori();
+    });
+    document.body.appendChild(t);
+    setTimeout(function () { t.classList.add("korpa-cik--van"); }, 3600);
+    setTimeout(function () { t.remove(); }, 4200);
+  }
+
+  korpaOsveziBroj();
+  /* dolazak sa druge strane: ?korpa=1 otvara korpu, ?korpa=poruci i porudžbinu */
+  (function () {
+    var p = new URLSearchParams(location.search).get("korpa");
+    if (!p) return;
+    if (p === "poruci") {
+      setTimeout(function () {
+        if (typeof window.bedzicKorpaPlati === "function") window.bedzicKorpaPlati();
+        else korpaOtvori();
+      }, 60);
+    } else {
+      korpaOtvori();
+    }
+  })();
+
   /* tamnija nijansa za obrub kod stila "kontura" */
   function potamni(hex, koliko) {
     var n = parseInt(hex.slice(1), 16);
@@ -312,6 +563,7 @@
      katalog gotovih proizvoda (gotovi.html) i konfigurator (napravi.html) —
      zato su otvoriModal/zatvoriModal ovde, van oba bloka, kao i kopiraj(). */
   var modal = $("modal"), forma = $("forma"), hvala = $("hvala");
+  var korpaRezim = false; /* true dok se poručuje cela korpa */
   var aktivnaInfo = null, poslednjiFokus = null;
 
   /* Povratak sa FormSubmit-a (_next vraća na ?poslato=1) — kupcu se odmah
@@ -403,6 +655,7 @@
 
   function otvoriModal(info, dugme) {
     aktivnaInfo = info;
+    korpaRezim = !!info.korpa;
     poslednjiFokus = dugme;
     forma.hidden = false;
     hvala.hidden = true;
@@ -424,11 +677,19 @@
       slikaMiniEl.hidden = !vecPrilozena;
       if (vecPrilozena) slikaMiniEl.src = vecPrilozena.dataUrl;
     }
-    if (slikaUnosEl) slikaUnosEl.required = !vecPrilozena;
+    /* u režimu korpe slika je već data po stavci — ovde se ne traži ponovo */
+    if (slikaUnosEl) {
+      slikaUnosEl.required = !vecPrilozena && !info.korpa;
+      var kutijaSlike = slikaUnosEl.closest ? slikaUnosEl.closest(".puno") : null;
+      if (kutijaSlike) kutijaSlike.hidden = !!info.korpa;
+    }
 
     /* izbor 150/200 ml — samo za šoljice, one sve idu sa tacnom */
     var grupaZ = $("grupaZapremina");
-    if (grupaZ) grupaZ.hidden = !info.zapremina;
+    if (grupaZ) grupaZ.hidden = !info.zapremina || !!info.korpa;
+    /* „Dodaj u korpu" nema smisla kad se već poručuje cela korpa */
+    var dugmeUKorpu = $("modalUKorpu");
+    if (dugmeUKorpu) dugmeUKorpu.hidden = !!info.korpa;
 
     $("modalOznaka").textContent = info.upit ? "Upit radionici" : "Porudžbina";
     $("modalIme").textContent = info.ime;
@@ -470,6 +731,66 @@
        samom elementu, da sastaviPorudzbinu zna kako da je nazove u poruci. */
     var kutija = $("modalVarijante");
     kutija.textContent = "";
+    /* Režim korpe: umesto izbora za jedan proizvod ide spisak svega
+       iz korpe, pa kupac vidi šta poručuje pre nego što pošalje. */
+    if (info.korpa) {
+      /* umesto jedne fotografije — sličice svih proizvoda iz korpe */
+      if (slikaWrap) {
+        if (slikaImg) slikaImg.hidden = true;
+        var stareSlike = slikaWrap.querySelector(".modal__korpa-slike");
+        if (stareSlike) slikaWrap.removeChild(stareSlike);
+        var mreza = document.createElement("div");
+        mreza.className = "modal__korpa-slike";
+        korpa.forEach(function (x) {
+          var izvor = x.slikaDataUrl || x.slikaUrl;
+          if (!izvor) return;
+          var fig = document.createElement("figure");
+          var im = document.createElement("img");
+          im.src = izvor;
+          im.alt = x.ime;
+          im.loading = "lazy";
+          fig.appendChild(im);
+          if (x.kom > 1) {
+            var b = document.createElement("span");
+            b.textContent = x.kom + "×";
+            fig.appendChild(b);
+          }
+          mreza.appendChild(fig);
+        });
+        slikaWrap.appendChild(mreza);
+        slikaWrap.hidden = !mreza.children.length;
+      }
+
+      var g0 = document.createElement("div");
+      g0.className = "grupa";
+      g0.innerHTML = '<p class="grupa__ime">Proizvodi u korpi</p>';
+      var ul = document.createElement("ul");
+      ul.className = "modal__korpa";
+      korpa.forEach(function (x) {
+        var li = document.createElement("li");
+        var c = cenaUBroj(x.cena);
+        li.innerHTML = "<b></b><small></small>";
+        li.querySelector("b").textContent =
+          (x.kom > 1 ? x.kom + "× " : "") + x.ime +
+          " — " + (c === null ? x.cena : dinari(c * (x.kom || 1)) + " din");
+        li.querySelector("small").textContent =
+          [x.detalj].concat(x.redovi || []).filter(Boolean).join(" · ");
+        ul.appendChild(li);
+      });
+      g0.appendChild(ul);
+      /* ukupno — roba, pa dostava kao zaseban red, jer zavisi od preuzimanja */
+      var zb = korpaZbir();
+      var uk = document.createElement("p");
+      uk.className = "modal__ukupno";
+      uk.innerHTML = zb.upit
+        ? "Deo proizvoda ide na upit — cenu potvrđujemo mejlom."
+        : "Roba: <b>" + dinari(zb.suma) + " din</b>" +
+          '<span class="modal__ukupno__red">Dostava: 600 din (nema je kod ličnog preuzimanja)</span>' +
+          '<span class="modal__ukupno__sve">Ukupno sa dostavom: <b>' + dinari(zb.suma + 600) + " din</b></span>";
+      g0.appendChild(uk);
+      kutija.appendChild(g0);
+      return dovrsiOtvaranje();
+    }
     (info.varijanteGrupe || []).forEach(function (g) {
       if (!g || !g.opcije || !g.opcije.length) return;
       var grupa = document.createElement("div");
@@ -503,6 +824,10 @@
       kutija.appendChild(g2);
     }
 
+    dovrsiOtvaranje();
+  }
+
+  function dovrsiOtvaranje() {
     modal.hidden = false;
     document.body.style.overflow = "hidden";
     var prvo = modal.querySelector("input, button:not([data-zatvori])");
@@ -960,6 +1285,8 @@
         /* ne gola fotografija proizvoda — kloniramo živi pregled iz
            konfiguratora, da kupac u porudžbini vidi tačno svoj natpis/sliku */
         pregledEl: document.querySelector(".scena"),
+        /* osnovna fotografija proizvoda — u korpi i mejlu služi kao slika stavke */
+        slika: proizvodFoto ? proizvodFoto.getAttribute("src") : null,
         /* slika koju je poslao — nosimo je do submit handlera, koji je šalje
            kao prilog uz porudžbinu. Zove se drugačije od info.slika (to je URL
            fotografije proizvoda kod gotovih artikala). */
@@ -1182,6 +1509,110 @@
     el.addEventListener("click", zatvoriModal);
   });
 
+  /* ---- korpa: dodavanje stavke i poručivanje cele korpe ---- */
+
+  /* redovi izbora (varijanta, unos, zapremina) — isti tekst ide i u korpu i
+     u mejl, pa se čita na jednom mestu */
+  function izboriIzModala() {
+    var r = [];
+    Array.prototype.forEach.call(modal.querySelectorAll("#modalVarijante .grupa"), function (g) {
+      var sel = g.querySelector(".prekidac__dugme[aria-pressed='true']");
+      if (sel && g.dataset.ime) r.push(g.dataset.ime + ": " + sel.textContent);
+    });
+    var unos = forma.elements.unos;
+    if (unos && String(unos.value || "").trim()) {
+      r.push((aktivnaInfo.unosLabel || "Unos") + ": " + String(unos.value).trim());
+    }
+    var gz = $("grupaZapremina");
+    var z = forma.elements.zapremina;
+    if (gz && !gz.hidden && z && z.value) r.push("Zapremina: " + z.value);
+    if (aktivnaInfo.opisDodatak) r = r.concat(aktivnaInfo.opisDodatak);
+    return r;
+  }
+
+  function stavkaIzModala(slikaDataUrl, slikaIme) {
+    return {
+      ime: aktivnaInfo.ime,
+      cena: aktivnaInfo.cena,
+      detalj: aktivnaInfo.detalj || "",
+      upit: !!aktivnaInfo.upit,
+      redovi: izboriIzModala(),
+      /* fotografija proizvoda sa sajta (katalog i osnovna slika konfiguratora) */
+      slikaUrl: aktivnaInfo.slika ? new URL(aktivnaInfo.slika, location.href).href : "",
+      /* sopstvena slika za štampu, ako ju je kupac priložio */
+      slikaDataUrl: slikaDataUrl || "",
+      slikaIme: slikaIme || "",
+      kom: 1
+    };
+  }
+
+  /* dugme „Dodaj u korpu" — stoji uz „Pošalji porudžbinu" */
+  (function () {
+    var dugmad = modal.querySelector(".modal__dugmad");
+    var posalji = $("modalPosalji");
+    if (!dugmad || !posalji) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "dugme dugme--tiho";
+    b.id = "modalUKorpu";
+    b.textContent = "Dodaj u korpu";
+    dugmad.insertBefore(b, posalji);
+
+    b.addEventListener("click", function () {
+      var greska = $("modalGreska");
+      greska.hidden = true;
+
+      if (aktivnaInfo.unosLabel) {
+        var unos = forma.elements.unos;
+        if (!unos || !String(unos.value || "").trim()) {
+          greska.hidden = false;
+          greska.textContent = "Nedostaje: " + aktivnaInfo.unosLabel.toLowerCase() + ".";
+          return;
+        }
+      }
+
+      var unosSlike = $("modalSlikaUnos");
+      var fajl = unosSlike && unosSlike.files[0];
+      /* konfigurator: slika za štampu ide po stavci, da se u mejlu zna
+         koja slika pripada kom proizvodu */
+      if (!fajl && !aktivnaInfo.korisnickaSlika && unosSlike) {
+        greska.hidden = false;
+        greska.textContent = "Nedostaje: slika za štampu.";
+        unosSlike.setAttribute("aria-invalid", "true");
+        return;
+      }
+
+      function dodaj(dataUrl, ime) {
+        korpaDodaj(stavkaIzModala(dataUrl, ime));
+        zatvoriModal();
+        korpaPoruka(aktivnaInfo.ime + " je u korpi.");
+      }
+      if (fajl) {
+        var citac = new FileReader();
+        citac.onload = function () { dodaj(citac.result, fajl.name); };
+        citac.readAsDataURL(fajl);
+      } else if (aktivnaInfo.korisnickaSlika) {
+        dodaj(aktivnaInfo.korisnickaSlika.dataUrl, aktivnaInfo.korisnickaSlika.ime);
+      } else {
+        dodaj("", "");
+      }
+    });
+  })();
+
+  /* poručivanje cele korpe — panel korpe zove ovu funkciju */
+  window.bedzicKorpaPlati = function () {
+    if (!korpa.length) { korpaOtvori(); return; }
+    korpaRezim = true;
+    var z = korpaZbir();
+    otvoriModal({
+      korpa: true,
+      ime: "Korpa — " + korpaKomada() + (korpaKomada() === 1 ? " proizvod" : " proizvoda"),
+      cena: z.upit ? "Deo na upit" : dinari(z.suma) + " din",
+      detalj: "",
+      upit: z.upit
+    }, $("navKorpa"));
+  };
+
   /* obavezna slika za štampu u samoj porudžbini — samo ispisuje ime
      izabranog fajla, čitanje ide tek pri slanju (forma.addEventListener submit) */
   if ($("modalSlikaUnos")) {
@@ -1235,6 +1666,33 @@
     });
   });
 
+  /* Mejl za celu korpu: prvo spisak proizvoda (sa izborima i linkom ka
+     fotografiji), pa zbir, pa podaci kupca. */
+  function sastaviPorudzbinuKorpa(podaci) {
+    var z = korpaZbir();
+    var r = ["PORUDŽBINA sa sajta — Bedžić", "", "Broj proizvoda: " + korpaKomada(), ""];
+    korpa.forEach(function (x, i) {
+      var c = cenaUBroj(x.cena);
+      r.push((i + 1) + ") " + x.ime);
+      if (x.detalj) r.push("   Detalji: " + x.detalj);
+      (x.redovi || []).forEach(function (red) { r.push("   " + red); });
+      r.push("   Količina: " + (x.kom || 1) + " kom");
+      r.push("   Cena: " + (c === null ? x.cena : dinari(c * (x.kom || 1)) + " din"));
+      if (x.slikaDataUrl) r.push("   Slika za štampu: u prilogu (" + (x.slikaIme || "slika") + ")");
+      if (x.slikaUrl) r.push("   Fotografija: " + x.slikaUrl);
+      r.push("");
+    });
+    r.push(z.upit
+      ? "Ukupno: deo proizvoda ide na upit — potvrditi cenu."
+      : "Ukupno roba: " + dinari(z.suma) + " din");
+    if (podaci.dostava) r.push("Preuzimanje: " + podaci.dostava);
+    r.push("", "Ime i prezime: " + podaci.ime, "Telefon: " + podaci.telefon);
+    if (podaci.adresa) r.push("Adresa: " + podaci.adresa);
+    if (podaci.grad) r.push("Grad: " + podaci.grad + (podaci.posta ? ", " + podaci.posta : ""));
+    if (podaci.napomena) r.push("Napomena: " + podaci.napomena);
+    return r.join("\n");
+  }
+
   function sastaviPorudzbinu(podaci) {
     var info = aktivnaInfo;
     var r = [
@@ -1287,7 +1745,7 @@
       obavezna.push(["grad", "grad"], ["posta", "poštanski broj"], ["adresa", "adresa"]);
     }
     /* sliku ne tražimo ponovo ako ju je kupac već priložio u konfiguratoru */
-    if (!aktivnaInfo.korisnickaSlika) obavezna.push(["slikaPorudzbina", "slika za štampu"]);
+    if (!korpaRezim && !aktivnaInfo.korisnickaSlika) obavezna.push(["slikaPorudzbina", "slika za štampu"]);
 
     var fali = [];
     obavezna.forEach(function (par) {
@@ -1297,7 +1755,7 @@
       polje.setAttribute("aria-invalid", String(prazno));
       if (prazno) fali.push(par[1]);
     });
-    if (aktivnaInfo.unosLabel && !podaci.unos) {
+    if (!korpaRezim && aktivnaInfo.unosLabel && !podaci.unos) {
       fali.push(aktivnaInfo.unosLabel.toLowerCase());
     }
     if (fali.length) {
@@ -1306,17 +1764,19 @@
       return;
     }
 
-    var tekst = sastaviPorudzbinu(podaci);
+    var tekst = korpaRezim ? sastaviPorudzbinuKorpa(podaci) : sastaviPorudzbinu(podaci);
     var dugme = $("modalPosalji");
     dugme.disabled = true;
     dugme.textContent = "Šaljem…";
 
-    var naslov = (aktivnaInfo.upit ? "Upit" : "Porudžbina") + " sa sajta — " + aktivnaInfo.ime;
+    var naslov = korpaRezim
+      ? "Porudžbina sa sajta — korpa (" + korpaKomada() + ")"
+      : (aktivnaInfo.upit ? "Upit" : "Porudžbina") + " sa sajta — " + aktivnaInfo.ime;
 
     /* slika za štampu je sada obavezna u svakoj porudžbini (posebno polje
        u formi) — čita se ovde kao dataURL pre slanja; ako je proizvod iz
        konfiguratora, ovo zamenjuje sliku koju je kupac tamo već poslao. */
-    var fajlSlike = forma.elements.slikaPorudzbina && forma.elements.slikaPorudzbina.files[0];
+    var fajlSlike = !korpaRezim && forma.elements.slikaPorudzbina && forma.elements.slikaPorudzbina.files[0];
     if (fajlSlike) {
       var citac = new FileReader();
       citac.onload = function () {
@@ -1339,10 +1799,11 @@
        Prilozi kod njih rade samo uz obično slanje forme (multipart POST) —
        preko AJAX-a se fajlovi tiho gube. Zato se gradi privremena forma i
        šalje normalno, a _next vraća kupca na ovu stranu gde vidi zahvalnicu. */
-    function posalji(prilog, fotoProizvoda) {
+    function posalji(prilozi) {
       var povratak = location.origin + location.pathname + "?poslato=1";
       /* gotovi proizvod: u mejlu i link ka fotografiji, ako prilog ne stigne */
-      var fotoUrl = aktivnaInfo.slika ? new URL(aktivnaInfo.slika, location.href).href : "";
+      var fotoUrl = !korpaRezim && aktivnaInfo.slika
+        ? new URL(aktivnaInfo.slika, location.href).href : "";
       var polja = {
         _subject: naslov,
         _next: povratak,
@@ -1373,39 +1834,57 @@
         f.appendChild(i);
       });
 
-      if (prilog) {
-        var fajl = document.createElement("input");
-        fajl.type = "file";
-        fajl.name = "Slika za štampu";
+      /* Ukupna veličina priloga: veće porudžbine mogu da skupe mnogo slika, a
+         servis za slanje odbija prevelik mejl. Sopstvene slike za štampu imaju
+         prednost (bez njih se ne može štampati), pa onda fotografije proizvoda
+         dok se ne napuni budžet. Za izostavljene u tekstu ostaje link. */
+      var MAKS_UKUPNO = 4.5 * 1024 * 1024;
+      var redom = (prilozi || []).filter(Boolean).slice().sort(function (a, b) {
+        var aS = /štampu/.test(a.naziv || "") ? 0 : 1;
+        var bS = /štampu/.test(b.naziv || "") ? 0 : 1;
+        return aS - bS;
+      });
+      var zbirBajtova = 0, izostavljeno = 0;
+      prilozi = [];
+      redom.forEach(function (p) {
+        if (zbirBajtova + p.blob.size > MAKS_UKUPNO) { izostavljeno++; return; }
+        zbirBajtova += p.blob.size;
+        prilozi.push(p);
+      });
+      if (izostavljeno) {
+        var nap = document.createElement("input");
+        nap.type = "hidden";
+        nap.name = "Napomena o prilozima";
+        nap.value = izostavljeno + " fotografije nisu poslate zbog veličine mejla — linkovi su u porudžbini.";
+        f.appendChild(nap);
+      }
+
+      /* prilozi: svaki dobija svoje polje, da ih FormSubmit sve prenese */
+      (prilozi || []).forEach(function (p, i) {
+        if (!p || !p.blob) return;
+        var unos = document.createElement("input");
+        unos.type = "file";
+        unos.name = p.naziv || ("Slika " + (i + 1));
         var dt = new DataTransfer();
-        dt.items.add(new File([prilog.blob], prilog.ime || "slika.jpg", { type: prilog.blob.type }));
-        fajl.files = dt.files;
-        f.appendChild(fajl);
-      }
-      if (fotoProizvoda) {
-        var fp = document.createElement("input");
-        fp.type = "file";
-        fp.name = "Fotografija proizvoda";
-        var dt2 = new DataTransfer();
-        dt2.items.add(new File([fotoProizvoda.blob], fotoProizvoda.ime || "proizvod.jpg", { type: fotoProizvoda.blob.type }));
-        fp.files = dt2.files;
-        f.appendChild(fp);
-      }
+        dt.items.add(new File([p.blob], p.ime || "slika.jpg", { type: p.blob.type }));
+        unos.files = dt.files;
+        f.appendChild(unos);
+      });
 
       /* sažetak se pamti da bi zahvalnica posle povratka mogla da ga pokaže */
       try { sessionStorage.setItem("bedzic_porudzbina", tekst); } catch (e) {}
+      /* korpa se prazni tek kad porudžbina zaista ide na slanje */
+      if (korpaRezim) korpaOcisti();
 
       document.body.appendChild(f);
       f.submit();
     }
 
-    /* Gotov proizvod: fotografija sa sajta ide kao prilog, da se u mejlu
-       vidi šta je naručeno. Ako preuzimanje ne uspe, porudžbina ipak ide
-       (sa linkom ka fotografiji u tekstu). */
-    function fotoGotovog() {
-      if (!aktivnaInfo.slika || aktivnaInfo.pregledEl) return Promise.resolve(null);
-      var ime = decodeURIComponent(aktivnaInfo.slika.split("?")[0].split("/").pop());
-      return fetch(aktivnaInfo.slika)
+    /* fotografija sa sajta (bilo koja adresa) → prilog spreman za mejl */
+    function prilogSaAdrese(url, naziv) {
+      if (!url) return Promise.resolve(null);
+      var ime = decodeURIComponent(String(url).split("?")[0].split("/").pop() || "proizvod.jpg");
+      return fetch(url)
         .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
         .then(function (blob) {
           return new Promise(function (resolve) {
@@ -1415,15 +1894,44 @@
             c.readAsDataURL(blob);
           });
         })
+        .then(function (p) { return p ? { naziv: naziv, blob: p.blob, ime: p.ime } : null; })
         .catch(function () { return null; });
     }
 
-    var prilogKupca = korisnickaSlika
-      ? pripremiSlikuZaSlanje(korisnickaSlika.dataUrl, korisnickaSlika.ime)
-      : Promise.resolve(null);
-    Promise.all([prilogKupca, fotoGotovog()]).then(function (p) {
-      posalji(p[0], p[1]);
-    });
+    if (korpaRezim) {
+      /* Korpa: za svaku stavku ide njena fotografija sa sajta, a gde je kupac
+         priložio svoju sliku za štampu — i ona. Nazivi polja nose redni broj
+         i naziv proizvoda, da se u mejlu zna šta je čije. */
+      var poslovi = [];
+      var vidjene = {}; /* ista fotografija (npr. ista osnovna šoljica) ide jednom */
+      korpa.forEach(function (x, i) {
+        var br = i + 1;
+        var kratko = String(x.ime).slice(0, 40);
+        if (x.slikaUrl && !vidjene[x.slikaUrl]) {
+          vidjene[x.slikaUrl] = true;
+          poslovi.push(prilogSaAdrese(x.slikaUrl, br + ". " + kratko + " — proizvod"));
+        }
+        if (x.slikaDataUrl) {
+          poslovi.push(
+            pripremiSlikuZaSlanje(x.slikaDataUrl, x.slikaIme || "slika.jpg").then(function (p) {
+              return p ? { naziv: br + ". " + kratko + " — slika za štampu", blob: p.blob, ime: p.ime } : null;
+            })
+          );
+        }
+      });
+      Promise.all(poslovi).then(function (p) { posalji(p.filter(Boolean)); });
+    } else {
+      var prilogKupca = korisnickaSlika
+        ? pripremiSlikuZaSlanje(korisnickaSlika.dataUrl, korisnickaSlika.ime)
+            .then(function (p) { return p ? { naziv: "Slika za štampu", blob: p.blob, ime: p.ime } : null; })
+        : Promise.resolve(null);
+      var fotoProizvoda = aktivnaInfo.pregledEl
+        ? Promise.resolve(null)
+        : prilogSaAdrese(aktivnaInfo.slika, "Fotografija proizvoda");
+      Promise.all([prilogKupca, fotoProizvoda]).then(function (p) {
+        posalji(p.filter(Boolean));
+      });
+    }
     } /* kraj: nastaviSlanje() */
   });
   } /* kraj: if (modal) — blok specifičan za katalog gotovih proizvoda */

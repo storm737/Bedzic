@@ -66,7 +66,7 @@
     { id: "flasica", ime: "Tumbler", foto: "assets/tumbler-pregled.png?v=1", fotoAlt: "Pregled tvog tumblera", fotoW: 435, fotoH: 1228, zapremina: false, ml: 590, cena: 1900 },
     { id: "limenka", ime: "Limenka", foto: "assets/limenka-pregled.png?v=1", fotoAlt: "Pregled tvoje limenke", fotoW: 584, fotoH: 1120, zapremina: false, ml: 350, cena: 1000 },
     { id: "pluta",   ime: "Šoljica sa poklopcem", foto: "assets/pluta-pregled.png?v=1", fotoAlt: "Pregled tvoje šoljice sa poklopcem i plutanom osnovom", fotoW: 904, fotoH: 1019, zapremina: false, ml: 400, cena: 1300 },
-    { id: "boca",    ime: "Sportska flašica", foto: "assets/flasica2-pregled.png?v=1", fotoAlt: "Pregled tvoje sportske flašice", fotoW: 425, fotoH: 1232, zapremina: false, ml: 600, cena: 1000 }
+    { id: "boca",    ime: "Sportska flašica", foto: "assets/flasica2-pregled.png?v=1", fotoAlt: "Pregled tvoje sportske flašice", fotoW: 425, fotoH: 1232, zapremina: false, ml: 600, cena: 1500 }
   ];
   var NACINI = [
     { id: "tekst", ime: "Dodaj tekst" },

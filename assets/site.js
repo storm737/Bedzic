@@ -687,11 +687,29 @@
     /* izbor 150/200 ml — samo za šoljice, one sve idu sa tacnom */
     var grupaZ = $("grupaZapremina");
     if (grupaZ) grupaZ.hidden = !info.zapremina || !!info.korpa;
-    /* „Dodaj u korpu" nema smisla kad se već poručuje cela korpa */
+    /* Dva koraka: prozor proizvoda služi samo za izbor i „Dodaj u korpu",
+       a podaci o kupcu i dostavi unose se jednom, na kraju, iz korpe.
+       Bez ovoga bi kupac isto unosio dva puta. */
     var dugmeUKorpu = $("modalUKorpu");
-    if (dugmeUKorpu) dugmeUKorpu.hidden = !!info.korpa;
+    if (dugmeUKorpu) {
+      dugmeUKorpu.hidden = !!info.korpa;
+      /* u prozoru proizvoda je to glavno dugme, pa nosi jaču boju */
+      dugmeUKorpu.className = info.korpa ? "dugme dugme--tiho" : "dugme";
+      dugmeUKorpu.textContent = info.upit ? "Dodaj u korpu (upit)" : "Dodaj u korpu";
+    }
+    var posaljiDugme = $("modalPosalji");
+    if (posaljiDugme) posaljiDugme.hidden = !info.korpa;
+    var polja = forma.querySelector(".polja");
+    if (polja) polja.hidden = !info.korpa;
+    var dostavaPolje = forma.elements.dostava;
+    var grupaDostava = dostavaPolje
+      ? (dostavaPolje.length ? dostavaPolje[0] : dostavaPolje).closest(".grupa")
+      : null;
+    if (grupaDostava) grupaDostava.hidden = !info.korpa;
 
-    $("modalOznaka").textContent = info.upit ? "Upit radionici" : "Porudžbina";
+    $("modalOznaka").textContent = info.upit
+      ? "Upit radionici"
+      : (info.korpa ? "Porudžbina" : "Izbor proizvoda");
     $("modalIme").textContent = info.ime;
     $("modalCena").textContent = info.cena + (info.upit ? "" : " + 600 din dostava");
     $("modalSpec").textContent = info.detalj || "";
@@ -1257,7 +1275,7 @@
     $("cenaOpis").innerHTML = c.opis;
 
     var dugme = $("dugmePorudzbina");
-    if (dugme) dugme.textContent = p.upit ? "Pošalji upit" : "Pošalji porudžbinu";
+    if (dugme) dugme.textContent = p.upit ? "Dodaj u korpu (upit)" : "Dodaj u korpu";
 
     potvrda.hidden = true;
   }
@@ -1640,6 +1658,8 @@
       dugme.disabled = true;
       return;
     }
+    dugme.title = "Dodaj u korpu";
+    dugme.setAttribute("aria-label", "Dodaj u korpu — " + (karta.getAttribute("data-ime") || ""));
     dugme.addEventListener("click", function () {
       var slikaEl = karta.querySelector(".karta__slika img");
       otvoriModal({

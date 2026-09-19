@@ -2628,3 +2628,7 @@ textarea.polje:focus{ outline:none; border-color:var(--crvena); box-shadow:0 0 0
 @media (max-width:420px){
   .korpa-panel__vrh{ flex-direction:column; align-items:flex-start; gap:8px }
 }
+
+/* izricit display pobedjuje atribut hidden, pa mora ovako — u prozoru
+   proizvoda se kriju polja kupca i izbor dostave (unose se tek iz korpe) */
+.polja[hidden], .grupa[hidden]{ display:none }

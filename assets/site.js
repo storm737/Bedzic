@@ -1141,12 +1141,12 @@
     if (p.cena) {
       var ukupno = p.cena * stanje.kolicina;
       return {
-        iznos: ukupno, cenaTekst: dinari(ukupno),
+        iznos: ukupno, cenaTekst: dinari(ukupno) + " din",
         opis: p.ime + "<br />" + stanje.kolicina + " kom" + (p.ml ? "<br />" + p.ml + " ml" : "")
       };
     }
-    if (stanje.kolicina === 2) return { iznos: CENE.dve, cenaTekst: dinari(CENE.dve), opis: "Bela šoljica<br />2 kom<br />" + stanje.velicina + " ml" };
-    return { iznos: CENE.jedna, cenaTekst: dinari(CENE.jedna), opis: "Bela šoljica<br />1 kom<br />" + stanje.velicina + " ml" };
+    if (stanje.kolicina === 2) return { iznos: CENE.dve, cenaTekst: dinari(CENE.dve) + " din", opis: "Bela šoljica<br />2 kom<br />" + stanje.velicina + " ml" };
+    return { iznos: CENE.jedna, cenaTekst: dinari(CENE.jedna) + " din", opis: "Bela šoljica<br />1 kom<br />" + stanje.velicina + " ml" };
   }
 
   /* Specifikacija porudžbine — deli je tekstPorudzbine() (kopiranje teksta)

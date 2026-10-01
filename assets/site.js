@@ -77,7 +77,8 @@
     proizvod: "solja", proizvodIzabran: false, nacin: "tekst",
     tekst: "", slova: "debela", bojaSlova: "crvena", velicina: "200", kolicina: 1,
     mereRedova: ["srednje", "srednje", "srednje"],
-    slika: null /* { dataUrl, ime } kad korisnik pošalje svoju sliku */
+    slika: null, /* { dataUrl, ime } kad korisnik pošalje svoju sliku */
+    slikaNapomena: "" /* opcioni tekst uz sopstvenu sliku — nikad obavezan */
   };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -952,6 +953,13 @@
       osvezi();
     });
   }
+  /* opcioni tekst uz sliku — ne diramo osvezi() za svaki tašter, samo pamtimo
+     vrednost; nikad nije obavezno polje */
+  if ($("slikaNapomena")) {
+    $("slikaNapomena").addEventListener("input", function () {
+      stanje.slikaNapomena = this.value;
+    });
+  }
 
   /* uvećanje i prevlačenje poslate slike unutar okvira na proizvodu — samo
      transform na <img>, bez ponovnog crtanja cele forme (osvezi() se zove
@@ -1165,6 +1173,7 @@
     if (stanje.nacin === "slika") {
       natpis = stanje.slika ? "slika u prilogu (" + stanje.slika.ime + ")" : "(još nije poslata)";
       linije.push("Personalizacija: sopstvena slika/logo — " + natpis);
+      if (String(stanje.slikaNapomena || "").trim()) linije.push("Tekst uz sliku: " + stanje.slikaNapomena.trim());
       linije.push("Napomena: slika se šalje uz porudžbinu; ako ne stigne u prilogu, pošalji je i na Instagram poruku.");
     } else {
       var red = redovi(stanje.tekst);
@@ -1310,7 +1319,9 @@
            fotografije proizvoda kod gotovih artikala). */
         korisnickaSlika: stanje.nacin === "slika" ? stanje.slika : null,
         opisDodatak: stanje.nacin === "slika"
-          ? ["Personalizacija: sopstvena slika/logo (vidi se u pregledu ispod)"]
+          ? ["Personalizacija: sopstvena slika/logo (vidi se u pregledu ispod)"].concat(
+              String(stanje.slikaNapomena || "").trim() ? ["Tekst uz sliku: " + stanje.slikaNapomena.trim()] : []
+            )
           : [
               "Natpis: " + s.natpis,
               "Slova: " + nadji(SLOVA, stanje.slova).ime,

@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+  command = "npm install"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Lepe adrese za funkciju — sajt zove /api/posalji-porudzbinu,
+# Netlify to iznutra prosledi pravoj funkciji u netlify/functions/.
+[[redirects]]
+  from = "/api/posalji-porudzbinu"
+  to = "/.netlify/functions/posalji-porudzbinu"
+  status = 200

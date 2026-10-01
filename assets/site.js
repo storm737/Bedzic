@@ -1717,7 +1717,7 @@
       ? "Ukupno: deo proizvoda ide na upit — potvrditi cenu."
       : "Ukupno roba: " + dinari(z.suma) + " din");
     if (podaci.dostava) r.push("Preuzimanje: " + podaci.dostava);
-    r.push("", "Ime i prezime: " + podaci.ime, "Telefon: " + podaci.telefon);
+    r.push("", "Ime i prezime: " + podaci.ime, "Telefon: " + podaci.telefon, "Email: " + podaci.email);
     if (podaci.adresa) r.push("Adresa: " + podaci.adresa);
     if (podaci.grad) r.push("Grad: " + podaci.grad + (podaci.posta ? ", " + podaci.posta : ""));
     if (podaci.napomena) r.push("Napomena: " + podaci.napomena);
@@ -1744,7 +1744,7 @@
     if (podaci.zapremina && gz && !gz.hidden) r.push("Zapremina: " + podaci.zapremina);
     if (podaci.dostava) r.push("Preuzimanje: " + podaci.dostava);
     r.push("", "Ime i prezime: " + podaci.ime,
-           "Telefon: " + podaci.telefon);
+           "Telefon: " + podaci.telefon, "Email: " + podaci.email);
     /* kod ličnog preuzimanja adresnih podataka nema — bez ove provere bi u
        mejlu stajale prazne rubrike „Adresa:" i „Grad:" */
     if (podaci.adresa) r.push("Adresa: " + podaci.adresa);
@@ -1771,7 +1771,7 @@
        službom; kod ličnog preuzimanja ta polja su sakrivena, pa bi inače
        porudžbina pucala na podacima koje kupac uopšte ne vidi */
     var licnoPreuzimanje = String(podaci.dostava || "").indexOf("Lično") === 0;
-    var obavezna = [["ime", "ime i prezime"], ["telefon", "telefon"]];
+    var obavezna = [["ime", "ime i prezime"], ["telefon", "telefon"], ["email", "email adresa"]];
     if (!licnoPreuzimanje) {
       obavezna.push(["grad", "grad"], ["posta", "poštanski broj"], ["adresa", "adresa"]);
     }
@@ -1792,6 +1792,12 @@
     if (fali.length) {
       greska.hidden = false;
       greska.textContent = "Nedostaje: " + fali.join(", ") + ".";
+      return;
+    }
+    if (podaci.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(podaci.email)) {
+      forma.elements.email.setAttribute("aria-invalid", "true");
+      greska.hidden = false;
+      greska.textContent = "Email adresa nije ispravna.";
       return;
     }
 
@@ -1819,96 +1825,83 @@
     }
 
     function nastaviSlanje(korisnickaSlika) {
-    /* Kod ličnog preuzimanja adresna polja su prazna — šalje se jasan tekst
-       umesto praznog stringa, da u mejlu ne stoje prazne rubrike. */
-    var licno = String(podaci.dostava || "").indexOf("Lično") === 0;
-    var adresaZaMejl = licno ? "Lično preuzimanje" : podaci.adresa;
-    var gradZaMejl   = licno ? "Lično preuzimanje" : podaci.grad;
-    var postaZaMejl  = licno ? "Lično preuzimanje" : podaci.posta;
+    /* SLANJE PREKO NETLIFY FUNKCIJE (Resend)
+       Funkcija šalje dva mejla — kupcu potvrdu na podaci.email, vlasniku sve
+       podatke za pripremu paketa. Slike idu kao base64 u JSON telu, pa se
+       cela porudžbina šalje jednim fetch pozivom, bez napuštanja strane. */
+    function prikaziGresku(poruka) {
+      greska.hidden = false;
+      greska.textContent = poruka;
+      dugme.disabled = false;
+      dugme.textContent = korpaRezim ? "Pošalji porudžbinu" : (aktivnaInfo.upit ? "Pošalji upit" : "Pošalji porudžbinu");
+    }
 
-    /* SLANJE PREKO FORMSUBMIT.CO
-       Prilozi kod njih rade samo uz obično slanje forme (multipart POST) —
-       preko AJAX-a se fajlovi tiho gube. Zato se gradi privremena forma i
-       šalje normalno, a _next vraća kupca na ovu stranu gde vidi zahvalnicu. */
-    function posalji(prilozi) {
-      var povratak = location.origin + location.pathname + "?poslato=1";
-      /* gotovi proizvod: u mejlu i link ka fotografiji, ako prilog ne stigne */
-      var fotoUrl = !korpaRezim && aktivnaInfo.slika
-        ? new URL(aktivnaInfo.slika, location.href).href : "";
-      var polja = {
-        _subject: naslov,
-        _next: povratak,
-        _captcha: "false",
-        _template: "table",
-        Proizvod: aktivnaInfo.ime,
-        Cena: aktivnaInfo.cena,
-        "Ime i prezime": podaci.ime,
-        Telefon: podaci.telefon,
-        Dostava: podaci.dostava || "",
-        Adresa: adresaZaMejl,
-        Grad: gradZaMejl,
-        "Poštanski broj": postaZaMejl,
-        Napomena: podaci.napomena || "",
-        Porudžbina: tekst
-      };
-      if (fotoUrl) polja["Link fotografije"] = fotoUrl;
-
-      var f = document.createElement("form");
-      f.method = "POST";
-      f.action = "https://formsubmit.co/" + EMAIL_PORUDZBINE;
-      f.enctype = "multipart/form-data";
-      f.style.display = "none";
-
-      Object.keys(polja).forEach(function (k) {
-        var i = document.createElement("input");
-        i.type = "hidden"; i.name = k; i.value = polja[k];
-        f.appendChild(i);
+    function blobUBase64(blob) {
+      return new Promise(function (resolve, reject) {
+        var citac = new FileReader();
+        citac.onload = function () { resolve(String(citac.result).split(",")[1] || ""); };
+        citac.onerror = reject;
+        citac.readAsDataURL(blob);
       });
+    }
 
+    function posalji(prilozi) {
       /* Ukupna veličina priloga: veće porudžbine mogu da skupe mnogo slika, a
-         servis za slanje odbija prevelik mejl. Sopstvene slike za štampu imaju
-         prednost (bez njih se ne može štampati), pa onda fotografije proizvoda
-         dok se ne napuni budžet. Za izostavljene u tekstu ostaje link. */
-      var MAKS_UKUPNO = 4.5 * 1024 * 1024;
+         Netlify funkcija odbija prevelik zahtev. Sopstvene slike za štampu
+         imaju prednost (bez njih se ne može štampati), pa onda fotografije
+         proizvoda dok se ne napuni budžet. Za izostavljene ostaje napomena. */
+      var MAKS_UKUPNO = 3 * 1024 * 1024;
       var redom = (prilozi || []).filter(Boolean).slice().sort(function (a, b) {
         var aS = /štampu/.test(a.naziv || "") ? 0 : 1;
         var bS = /štampu/.test(b.naziv || "") ? 0 : 1;
         return aS - bS;
       });
-      var zbirBajtova = 0, izostavljeno = 0;
-      prilozi = [];
+      var zbirBajtova = 0, izostavljeno = 0, zaSlanje = [];
       redom.forEach(function (p) {
         if (zbirBajtova + p.blob.size > MAKS_UKUPNO) { izostavljeno++; return; }
         zbirBajtova += p.blob.size;
-        prilozi.push(p);
-      });
-      if (izostavljeno) {
-        var nap = document.createElement("input");
-        nap.type = "hidden";
-        nap.name = "Napomena o prilozima";
-        nap.value = izostavljeno + " fotografije nisu poslate zbog veličine mejla — linkovi su u porudžbini.";
-        f.appendChild(nap);
-      }
-
-      /* prilozi: svaki dobija svoje polje, da ih FormSubmit sve prenese */
-      (prilozi || []).forEach(function (p, i) {
-        if (!p || !p.blob) return;
-        var unos = document.createElement("input");
-        unos.type = "file";
-        unos.name = p.naziv || ("Slika " + (i + 1));
-        var dt = new DataTransfer();
-        dt.items.add(new File([p.blob], p.ime || "slika.jpg", { type: p.blob.type }));
-        unos.files = dt.files;
-        f.appendChild(unos);
+        zaSlanje.push(p);
       });
 
-      /* sažetak se pamti da bi zahvalnica posle povratka mogla da ga pokaže */
-      try { sessionStorage.setItem("bedzic_porudzbina", tekst); } catch (e) {}
-      /* korpa se prazni tek kad porudžbina zaista ide na slanje */
-      if (korpaRezim) korpaOcisti();
+      Promise.all(zaSlanje.map(function (p) {
+        return blobUBase64(p.blob).then(function (b64) {
+          return { naziv: p.naziv, ime: p.ime || "slika.jpg", podaci: b64 };
+        });
+      })).then(function (prilozi64) {
+        var telo = {
+          ime: podaci.ime,
+          telefon: podaci.telefon,
+          email: podaci.email,
+          naslov: naslov,
+          tekst: tekst + (izostavljeno
+            ? "\n\n" + izostavljeno + " fotografije nisu poslate zbog veličine — probaćemo preko Instagrama."
+            : ""),
+          prilozi: prilozi64
+        };
 
-      document.body.appendChild(f);
-      f.submit();
+        fetch("/api/posalji-porudzbinu", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(telo)
+        })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok, j: j }; }); })
+          .then(function (rez) {
+            if (!rez.ok) {
+              prikaziGresku("Slanje nije uspelo" + (rez.j && rez.j.error ? " (" + rez.j.error + ")" : "") + " — probaj ponovo ili nas piši na Instagram.");
+              return;
+            }
+            /* korpa se prazni tek kad je mejl zaista potvrđeno poslat */
+            if (korpaRezim) korpaOcisti();
+            forma.hidden = true;
+            hvala.hidden = false;
+            if ($("hvalaSazetak")) $("hvalaSazetak").textContent = tekst;
+          })
+          .catch(function () {
+            prikaziGresku("Nema veze sa serverom — proveri internet i probaj ponovo.");
+          });
+      }).catch(function () {
+        prikaziGresku("Priprema slika nije uspela — probaj ponovo.");
+      });
     }
 
     /* fotografija sa sajta (bilo koja adresa) → prilog spreman za mejl */

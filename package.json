@@ -1,0 +1,9 @@
+{
+  "name": "bedzic-sajt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bedžić — statički sajt (Netlify) + funkcija za slanje porudžbina preko Resend-a.",
+  "dependencies": {
+    "resend": "^4.0.1"
+  }
+}

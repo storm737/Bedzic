@@ -326,7 +326,7 @@
 
     var z = korpaZbir();
     $("korpaZbir").innerHTML = z.upit
-      ? "Deo proizvoda ide na upit — cenu potvrđujemo mejlom."
+      ? "Deo proizvoda ide na upit."
       : "Roba: <b>" + dinari(z.suma) + " din</b><br><small>Dostava 600 din, ako ne preuzimaš lično.</small>";
   }
 
@@ -802,7 +802,7 @@
       var uk = document.createElement("p");
       uk.className = "modal__ukupno";
       uk.innerHTML = zb.upit
-        ? "Deo proizvoda ide na upit — cenu potvrđujemo mejlom."
+        ? "Deo proizvoda ide na upit."
         : "Roba: <b>" + dinari(zb.suma) + " din</b>" +
           '<span class="modal__ukupno__red">Dostava: 600 din (nema je kod ličnog preuzimanja)</span>' +
           '<span class="modal__ukupno__sve">Ukupno sa dostavom: <b>' + dinari(zb.suma + 600) + " din</b></span>";
@@ -1142,7 +1142,7 @@
   function izracunaj() {
     var p = nadji(PROIZVODI, stanje.proizvod);
     if (p.upit) {
-      return { iznos: null, cenaTekst: "na upit", opis: p.ime + "<br />" + stanje.kolicina + " kom<br />javljamo cenu" };
+      return { iznos: null, cenaTekst: "na upit", opis: p.ime + "<br />" + stanje.kolicina + " kom" };
     }
     /* Proizvod sa jedinstvenom cenom po komadu (tumbler) — nema komplet-cenu
        kao šoljice, pa se prosto množi količinom. */

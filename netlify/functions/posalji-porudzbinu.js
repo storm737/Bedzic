@@ -103,11 +103,10 @@ exports.handler = async function (event) {
     subject: "Primili smo tvoju porudžbinu — Bedžić",
     html: emailOmot(
       "Hvala na porudžbini, " + ime + "! 🍒",
-      "<p>Stigla nam je tvoja porudžbina i javljamo se uskoro da potvrdimo detalje.</p>" +
+      "<p>Stigla nam je tvoja porudžbina.</p>" +
       '<div style="background:#FFF0F5;border-radius:14px;padding:16px 18px;margin:16px 0;font-family:monospace;font-size:13.5px;white-space:pre-wrap">' +
       uHtml(tekstZaMejl) +
       "</div>" +
-      "<p>Ako nešto treba da ispraviš, samo odgovori na ovaj mejl.</p>" +
       "<p>Hvala na poverenju — Bedžić 💌</p>"
     )
   };

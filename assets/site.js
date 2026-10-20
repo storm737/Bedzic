@@ -1669,8 +1669,11 @@
       dugme.disabled = true;
       return;
     }
-    dugme.title = "Dodaj u korpu";
-    dugme.setAttribute("aria-label", "Dodaj u korpu — " + (karta.getAttribute("data-ime") || ""));
+    /* rasprodat proizvod zadržava svoj opis „Trenutno rasprodato" */
+    if (!dugme.disabled) {
+      dugme.title = "Dodaj u korpu";
+      dugme.setAttribute("aria-label", "Dodaj u korpu — " + (karta.getAttribute("data-ime") || ""));
+    }
     dugme.addEventListener("click", function () {
       var slikaEl = karta.querySelector(".karta__slika img");
       otvoriModal({
